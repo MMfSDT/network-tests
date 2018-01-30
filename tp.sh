@@ -10,12 +10,12 @@ else
 		iperf -s -i 0.5 -y c
 	else
 		# parse data into simplified csv
-		data=$(iperf -c $1 -t 5 -i 0.5 -y c -x CSMV | \
-			awk -F',' '{length(csv) == 0 ? csv = $9 : csv = csv "," $9} \
+		data=$(iperf -c $1 -t 5 -i 0.5 -y c -x CSMV)
+		foo=$(echo "$data" | awk -F',' '{length(csv) == 0 ? csv = $9 : csv = csv "," $9} \
 			END {print csv}')
-
+			
 		# determine mean, min, and max
-		IFS=',' read -r -a array <<< "$data"
+		IFS=',' read -r -a array <<< "$foo"
 		min=$((9999999999))
 		max=$((0))
 		for element in "${array[@]}"; do
@@ -34,10 +34,10 @@ else
 		echo "Mean: " $mean
 		echo "Max: " $max
 		echo "Min: " $min
-		echo "Data: " $data
+		echo "Data: " $foo
 
 		# place data into output log TODO: variable output file
-		echo $mean "," $max "," $min "," $data | sed "s/[[:blank:]]//g" >> logs/tp.out
+		echo $mean "," $max "," $min "," $foo | sed "s/[[:blank:]]//g" >> logs/tp.out
 
 	fi
 fi
