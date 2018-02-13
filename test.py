@@ -22,22 +22,31 @@ print "receivers: " + str(receiver)
 server = 0
 client = 1
 
-# Start iperf on server/receiver host (non-blocking).
-serverCmd = "iperf -s"
-net.hosts[server].sendCmd(serverCmd)
+for server,client in zip(sender, receiver):
+	# Start iperf on server/receiver host (non-blocking).
+	serverCmd = "iperf -s"
+	net.hosts[server].sendCmd(serverCmd)
 
-# Run multiple iperf runs on the client/sender.
-#   Run is repeated runCount times.
-#   Variable things:
-#     (-n)umber of bytes to transmit n[KM]
-payloadSize = "1K"
-runCount = 10
-for each in range(0,runCount):
-	clientCmd = "iperf -c " +  net.hosts[server].IP() \
-		+ " -n " + payloadSize + " -y c -x CSMV"
+	# Run multiple iperf runs on the client/sender.
+	#   Run is repeated runCount times.
+	#   Variable things:
+	#     (-n)umber of bytes to transmit n[KM]
+	payloadSize = "1K"
+	runCount = 10
+	results = []
 
-	print "run #" + str(each)
-	print net.hosts[client].cmd(clientCmd)
+	for each in range(0,runCount):
+		clientCmd = "iperf -c " +  net.hosts[server].IP() \
+			+ " -n " + payloadSize + " -y c -x CSMV"
 
-net.hosts[server].sendInt()
-net.hosts[server].monitor()
+		results.append(net.hosts[client].cmd(clientCmd))
+
+	# extract average bandwidth
+	print "Server: " + str(net.hosts[server])
+	print "Client: " + str(net.hosts[client])
+	for each in results:
+		print "    " + each.split(",")[-1][:-1]
+
+	print ""
+	net.hosts[server].sendInt()
+	net.hosts[server].monitor()
