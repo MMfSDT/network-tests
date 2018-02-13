@@ -1,0 +1,1 @@
+py execfile("../network-tests/test.py")
