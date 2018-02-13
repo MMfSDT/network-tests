@@ -20,3 +20,5 @@ def pickHost(hosts):
 
 	# choose sender
 	choice(xrange(listlen))
+
+print net.hosts[0].IP() # extract IP address of node
