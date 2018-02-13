@@ -1,5 +1,6 @@
 
 from random import sample, choice
+from time import sleep
 
 # generate sender/receiver array
 length = len(net.hosts)
@@ -24,7 +25,7 @@ client = 1
 
 for server,client in zip(sender, receiver):
 	# Start iperf on server/receiver host (non-blocking).
-	serverCmd = "iperf -s"
+	serverCmd = "iperf -s &> /dev/null"
 	net.hosts[server].sendCmd(serverCmd)
 
 	# Run multiple iperf runs on the client/sender.
@@ -35,8 +36,9 @@ for server,client in zip(sender, receiver):
 	runCount = 10
 	results = []
 
+	sleep(0.001)
 	for each in range(0,runCount):
-		clientCmd = "iperf -c " +  net.hosts[server].IP() \
+		clientCmd = "iperf -c" +  net.hosts[server].IP() \
 			+ " -n " + payloadSize + " -y c -x CSMV"
 
 		results.append(net.hosts[client].cmd(clientCmd))
