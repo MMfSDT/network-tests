@@ -1,6 +1,8 @@
 
 from random import sample, choice
 from time import sleep
+from os.path import join as pjoin
+from os import getcwd
 
 # generate sender/receiver array
 length = len(net.hosts)
@@ -19,10 +21,14 @@ print "receivers: " + str(receiver)
 # Launch server on the corresponding host.
 #  Note that sender - server, receiver - client.
 
-# fixed values for now. Iteration implementation to follow.
-server = 0
-client = 1
+payloadSize = "1K"
+runCount = 10
 
+filename = payloadSize + "-" + str(runCount) + ".txt"
+filepath = pjoin(getcwd(), "logs", filename)
+f = open(filepath, "w+")
+
+output = ""
 for server,client in zip(sender, receiver):
 	# Start iperf on server/receiver host (non-blocking).
 	serverCmd = "iperf -s &> /dev/null"
@@ -32,8 +38,6 @@ for server,client in zip(sender, receiver):
 	#   Run is repeated runCount times.
 	#   Variable things:
 	#     (-n)umber of bytes to transmit n[KM]
-	payloadSize = "1K"
-	runCount = 10
 	results = []
 
 	sleep(0.001)
@@ -44,11 +48,13 @@ for server,client in zip(sender, receiver):
 		results.append(net.hosts[client].cmd(clientCmd))
 
 	# extract average bandwidth
-	print "Server: " + str(net.hosts[server])
-	print "Client: " + str(net.hosts[client])
+	# Outputs in CSV format <server>,<client>,data
 	for each in results:
-		print "    " + each.split(",")[-1][:-1]
+		f.write(str(net.hosts[server]) + "," + \
+			str(net.hosts[client]) + "," + \
+			each.split(",")[-1][:-1] + "\n")
 
-	print ""
 	net.hosts[server].sendInt()
 	net.hosts[server].monitor()
+
+print "Test complete. Written to " + filename
