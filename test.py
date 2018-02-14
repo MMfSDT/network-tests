@@ -1,7 +1,7 @@
 
 from random import sample, choice
 from time import sleep
-from os.path import join as pjoin
+from os.path import relpath
 from os import getcwd
 
 # generate sender/receiver array
@@ -25,7 +25,8 @@ payloadSize = "1K"
 runCount = 10
 
 filename = payloadSize + "-" + str(runCount) + ".txt"
-filepath = pjoin(getcwd(), "logs", filename)
+filepath = os.path.relpath(filename)
+print filepath
 f = open(filepath, "w+")
 
 output = ""
@@ -41,6 +42,8 @@ for server,client in zip(sender, receiver):
 	results = []
 
 	sleep(0.001)
+	print "Testing server-client pair " + \
+		str(net.hosts[server]) + " " + str(net.hosts[client])
 	for each in range(0,runCount):
 		clientCmd = "iperf -c" +  net.hosts[server].IP() \
 			+ " -n " + payloadSize + " -y c -x CSMV"
@@ -58,3 +61,4 @@ for server,client in zip(sender, receiver):
 	net.hosts[server].monitor()
 
 print "Test complete. Written to " + filename
+f.close()
