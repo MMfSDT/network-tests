@@ -1,3 +1,6 @@
-# ./logs/tp.out is an output of ./tp.sh, best to keep it local
+# Best to keep log files local.
 
-logs/
+logs/args.txt
+logs/mid.json
+logs/aggregate.json
+logs/pcaps/pcap-*/
