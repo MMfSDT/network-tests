@@ -26,3 +26,21 @@ for example:
 ```
 h000,h111,1231231
 ```
+
+
+# Conventions
+To recap, the following arguments will be used for launching tests.
+
+--K [4,8,16]
+--proto [tcp,mptcp]
+--pmanager [fullmesh,ndiffports]
+--ports [1-16]
+--payloadsize [query,long,short]
+--runcount [10]
+
+Long messages are 100Mb, Query 10kb, short 500kb.
+
+By default, tests will be run on mptcp-fullmesh with a runcount of 10 on k=4 with a payload size of 500kb.
+
+## Middleware
+logs/args.txt will contain arguments for tests. See above.
