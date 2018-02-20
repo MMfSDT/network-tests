@@ -22,3 +22,8 @@ def pickHost(hosts):
 	choice(xrange(listlen))
 
 print net.hosts[0].IP() # extract IP address of node
+
+directory = "../network-tests/logs/"
+if not path.exists(directory):
+	print "Created logs directory."
+	makedirs(directory
