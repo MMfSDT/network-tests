@@ -32,6 +32,7 @@ h000,h111,1231231
 To recap, the following arguments will be used for launching tests.
 
 --K [4,8,16]
+--router [static,ecmp,ps]
 --proto [tcp,mptcp]
 --pmanager [fullmesh,ndiffports]
 --ports [1-16]
