@@ -59,29 +59,29 @@ elif args['payloadsize'] == "long":
 runCount = int(args['runcount'])
 
 # Generate randomized sender/receiver pairs.
-#  Note that sender - server, receiver - client.
+#  It's a sad day.
 length = len(net.hosts)
-receiver = sample(xrange(length), length)
+client = sample(xrange(length), length)
 
-sender = []
+server = []
 for each in range(0, length):
-	sender.append(choice([x for x in receiver if x not in sender]))
+	server.append(choice([x for x in client if x not in server]))
 
-	while sender[-1] == receiver[len(sender) - 1]:
-		sender[-1] = choice([x for x in receiver if x not in sender])
+	while server[-1] == client[len(server) - 1]:
+		server[-1] = choice([x for x in client if x not in server])
 
-print "senders: " + str(sender)
-print "receivers: " + str(receiver)
+print "*** Servers: " + str(server)
+print "*** Clients: " + str(client)
 print ""
 
-# Iterate through the previously generated sender/receiver pairs.
+# Iterate through the previously generated server/client pairs.
 entries = []
-for server, client in zip(sender, receiver):
-	# Start iperf on server/receiver host (non-blocking).
+for server, client in zip(server, client):
+	# Start iperf on server host (non-blocking).
 	serverCmd = "iperf -s &> /dev/null"
 	net.hosts[server].sendCmd(serverCmd)
 
-	# Run multiple iperf runs on the client/sender.
+	# Run multiple iperf runs on the client.
 	#   Run is repeated runCount times.
 	#   Variable things:
 	#     (-n)umber of bytes to transmit n[KM]

@@ -4,3 +4,6 @@ logs/args.txt
 logs/mid.json
 logs/aggregate.json
 logs/pcaps/pcap-*/
+
+.vscode/
+testing.py

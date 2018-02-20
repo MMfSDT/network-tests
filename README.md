@@ -1,47 +1,141 @@
-The goal of this exercise is to create a bash-based or python-based measurement of flow completion time and throughput in a network.
+# MMfSDT/network-tests
+Companion repository to `MMfSDT/mininet-topo-generator` to provide testing, data extraction and data processing. Focuses on getting Flow Completion Time (FCT) and Throughput for all host pairs in a given topology described on the generator. 
 
-# Running test.py
-The script can be run either at launch of the mininet-topo-generator or within the Mininet CLI itself. 
+## Repository Structure
+```
+./
+|-- logs/
+    |-- pcaps/
+        |-- ...
+    |-- aggregate.json
+    |-- ...
+|-- postprocess.py
+|-- README.md
+|-- test.py
+|-- ...
+```
+
+where `test.py` is meant to be run within the Mininet topology (i.e., with `--test`) and `postprocess.py` is meant to be run outside the Mininet topology (i.e., with `--post`). In addition, the `logs/` directory, as described later, will contain all executed test results (in a JSON-formatted array inside `logs/aggregate.json`) and all `.pcap` backups (in `logs/pcaps/`).
 
 ## Configuration
-Place the network-tests and mininet-topo-generator repositories in one directory.
+Follow the `Prerequisites and Dependencies` given at [`MMfSDT/mininet-topo-generator`](https://github.com/MMfSDT/mininet-topo-generator/blob/master/README.md#prerequisites-and-dependencies). In addition, make sure to place the `network-tests` and `mininet-topo-generator` repositories in one directory.
 
-## Mininet-topo-generator
-Go to the root directory of the mininet-topo-generator repository and run the following snippet.
-```
-sudo ./run_static.sh --test ../network-tests/test.py
-````
+## Running `test.py` and `postprocessing.py`
+The script can be run either at launch of the `mininet-topo-generator` or within the Mininet CLI itself. 
 
-## Within the mininet CLI
+### `mininet-topo-generator`
+The instructions below assume that you are currently within the root directory of the `mininet-topo-generator` repository.
+
+#### Both test and post-processing
+
+If you want to run both test and post-processing, run the following snippet. Note that `--pcap` is required when `--post` is specified.
+```bash
+sudo ./run.sh --test ../network-tests/test.py --post ../network-tests/test.py --pcap # Add other parameters here
 ```
+
+This will output a file `aggregate.json` with a JSON object containing your test results (both FCT and Througput).
+
+#### Test only
+
+If you want to run a test without post-processing, run the following snippet.
+```bash
+sudo ./run.sh --test ../network-tests/test.py # Add other parameters here
+```
+
+This will output a file `mid.json` with a JSON object containing your test results (Throughput only).
+
+#### Additional Options and Instructions
+
+Additional instructions are available at ['MMfSDT/mininet-topo-generator'](https://github.com/MMfSDT/mininet-topo-generator/blob/master/README.md#running-the-script) under `Running the Script`.
+
+### Within the Mininet CLI
+If for some reason you want to manually enable the script/want to create your own, edit `commands.txt` to your liking (with valild Mininet commands), then source the file.
+
+```bash
+sudo ./run.sh # Add --post and/or --pcap if you want FCT postprocessing/pcap logging.
 source ../network-tests/commands.txt
 ```
 
-# Output
-The test results will be placed into the logs/ directory with file name format <filesize>-<testcount>.txt. The results are in a CSV format as indicated below.
-```
-<server-name>,<host-name>,data
-```
-for example:
-```
-h000,h111,1231231
-```
-
-
-# Conventions
+## Convention
 To recap, the following arguments will be used for launching tests.
 
---K [4,8,16]
---router [static,ecmp,ps]
---proto [tcp,mptcp]
---pmanager [fullmesh,ndiffports]
---ports [1-16]
---payloadsize [query,long,short]
---runcount [10]
+```javascript
+{
+    "K": int | [2, {4}, 8, 16, 32, 64, 128],
+    "router": string | [{static}, ecmp, ps],
+    "proto": string | [tcp, {mptcp}],
+    "pmanager": string | [{fullmesh}, ndiffports],
+    "diffports": int | [1 - 16],
+    "payloadsize": string | [query, long, {short}],
+    "runcount": int | [{10}]
+}
+```
 
-Long messages are 100Mb, Query 10kb, short 500kb.
+where `long` messages are `100MB`, `query` `10kB`, `short` `500kB`.
 
-By default, tests will be run on mptcp-fullmesh with a runcount of 10 on k=4 with a payload size of 500kb.
+By default, tests will be run on `mptcp-fullmesh` with a `runcount` of `10` on `k=4` with a payload size of `500kB`.
 
-## Middleware
-logs/args.txt will contain arguments for tests. See above.
+More details are available at [`MMfSDT/mininet-topo-generator/README.md`](https://github.com/MMfSDT/mininet-topo-generator/blob/master/README.md#running-the-script).
+
+## Logs
+The logs directory will be structured as follows:
+
+```bash
+logs/
+|-- pcaps/
+    |-- pcap-*/
+    |-- foo
+|-- aggregate.json
+|-- args.txt
+|-- foo
+|-- mid.json
+```
+
+where,
+* `logs/pcaps` have the `.pcap` backups for all executed tests for debugging/archival purposes.
+* `logs/pcaps/pcap-*/` will be the directory naming convention per test, where the `*` is a Unix timestamp.
+* `logs/aggregate.json` will contain all previously executed tests, in a JSON-formatted array. This will serve as the output of `postprocess.py`. In the future, this will be the main source of data for visualization.
+* `logs/args.txt` will contain the arguments/metadata used by both `test.py` and `postprocess.py` (mentioned in `Conventions`) in a .json object.
+* `logs/mid.json` will serve as the output of `test.py` (JSON object), containing only throughput data. FCT will then be extracted from the `.pcap` logs through post-processing, and the final JSON object will be appended to `aggregate.json`
+* `foo` are placeholder files to ensure that the directories won't be skipped.
+
+### `args.txt` JSON format
+> Used by: `test.py`, `postprocess.py`
+
+See [`Conventions`]() above.
+### `mid.json` JSON format
+> Output of: `test.py`; Used by: `postprocess.py`
+```javascript
+[
+    {
+        "client": string | `/h\d\d\d`,
+        "server": string | `/h\d\d\d`,
+        "results": [
+            {
+                "fct": 0,
+                "throughput": int
+            }
+        ]
+    }
+]
+```
+
+`mid.json` then contains an array of server-client pair results specified in the format above (i.e., for a `K = 4` topology, expect the array length to be `num_hosts = K^3/4 = 16`).
+
+`['results']` is then an array of run results for each server-client pair (i.e., if `--runcount 10`, expect the array length to be `10`). Note that `['results'][n]['fct']` is always set to zero when written by `test.py`, as this will be filled up by `postprocess.py`.
+### `aggregate.json` JSON format
+> Output of: `postprocess.py`
+```javascript
+[
+    {
+        "entries": _mid_,
+        "metadata": _args_
+    }
+]
+```
+
+`aggregate.json` finally contains an array of entire test results, defined by `['entries']` and `['metadata']`. 
+
+`['entries']` is defined to be `_mid_`, which is the contents of `mid.json`, with updated `['entries'][i]['results'][j]['fct']` properties.
+
+`['metadata']` is defined to be `_args_`, which is the contents of `args.json`, with an added `['metadata']['timestamp']` property, defined to be a Unix timestamp.
