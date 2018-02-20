@@ -1,10 +1,30 @@
 from random import sample, choice
+from os import path, makedirs
 from time import sleep
-from os.path import relpath
-from os import getcwd
 import json
 
+# Switch to TCP/MPTCP
+# Arguments -
+# proto=tcp/mptcp, 					by default it's mptcp
+# pmanager=ndiffports/fullmesh
+# ports=N
+# delimited by spaces
+# payloadsize = 1[KM]
+
+# sample output:
+# proto=tcp
+#rawArgs = "proto=mptcp pmanager=ndiffports"
+#rawArgs.split(" ")
+
+#args = dict()
+
+#proto, pmanager, ports, payloadsize, runcount
+
+payloadSize = "1K"
+runCount = 10
+
 # generate sender/receiver array
+#  Note that sender - server, receiver - client.
 length = len(net.hosts)
 receiver = sample(xrange(length), length)
 
@@ -18,19 +38,18 @@ for each in range(0, length):
 print "senders: " + str(sender)
 print "receivers: " + str(receiver)
 
-# Launch server on the corresponding host.
-#  Note that sender - server, receiver - client.
 
-payloadSize = "1K"
-runCount = 10
+# Ensure that logs directory exists in network-tests repository.
+# Note that network-tests and mininet-topo-generator should be in the same directory.
+directory = "../network-tests/logs/"
+if not path.exists(directory):
+	print "Created logs directory."
+	makedirs(directory)
 
-# Note that the python script is run within the mininet-topo-generator directory.
-# To ensure working code, keep mininet-topo-generator and network-tests on the same directory level
-filename = payloadSize + "-" + str(runCount) + ".txt"
-filepath = os.path.relpath(filename)
-print filepath
+filepath = directory + "mid.json" 
 
-# output = ""
+
+# Iterate through the previously generated sender/receiver pairs.
 entries = []
 for server, client in zip(sender, receiver):
 	# Start iperf on server/receiver host (non-blocking).
@@ -43,7 +62,7 @@ for server, client in zip(sender, receiver):
 	#     (-n)umber of bytes to transmit n[KM]
 	results = []
 
-	sleep(0.1) # (charles) still having connection issues with sleep(0.001)
+	sleep(0.1)
 	print "Testing server-client pair " + \
 		str(net.hosts[server]) + " " + str(net.hosts[client])
 	for each in range(0, runCount):
@@ -51,7 +70,7 @@ for server, client in zip(sender, receiver):
 			+ " -n " + payloadSize + " -y c -x CSMV"
 
 		results.append(net.hosts[client].cmd(clientCmd))
-		sleep(0.1) # (charles) let it cool down
+		sleep(0.1)
 
 	# extract average bandwidth
 	# Outputs in CSV format <server>,<client>,data
@@ -60,7 +79,7 @@ for server, client in zip(sender, receiver):
 	# 		str(net.hosts[client]) + "," + \
 	# 		each.split(",")[-1][:-1] + "\n")
 
-	# JSON FOR LIFE
+	# JSON FOR LIFE 
 	entry = { 'server': str(net.hosts[server]), 'client': str(net.hosts[client]), 'results': [] }
 	for each in results:
 		entry['results'].append({ 'throughput': int(each.split(",")[-1][:-1].strip()), 'fct': 0 })
@@ -72,5 +91,4 @@ for server, client in zip(sender, receiver):
 with open(filepath, 'w+') as jsonFile:
 	json.dump(entries, jsonFile)
 
-print "Test complete. Written to " + filename
-
+print "Test complete. Parameters: "
