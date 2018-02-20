@@ -24,6 +24,8 @@ print "receivers: " + str(receiver)
 payloadSize = "1K"
 runCount = 10
 
+# Note that the python script is run within the mininet-topo-generator directory.
+# To ensure working code, keep mininet-topo-generator and network-tests on the same directory level
 filename = payloadSize + "-" + str(runCount) + ".txt"
 filepath = os.path.relpath(filename)
 print filepath
