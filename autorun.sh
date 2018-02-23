@@ -113,27 +113,27 @@ sudo ./run.sh --test ../network-tests/test.py \
 #4. ECMP-MPTCP-Fullmesh vs.
 # ECMP-MPTCP-ndiffports, for K = 8, long payloadsize, varying diffports [1, 2, 4, 6, 8] (6 runs)
 
-sudo ./run.sh --test ../network-tests/test.py \
---K 8 --router ecmp --proto mptcp --pmanager fullmesh --payloadsize long \
---post ../network-tests/postprocess.py --pcap
+# sudo ./run.sh --test ../network-tests/test.py \
+# --K 8 --router ecmp --proto mptcp --pmanager fullmesh --payloadsize long \
+# --post ../network-tests/postprocess.py --pcap
 
 
-sudo ./run.sh --test ../network-tests/test.py \
---K 8 --router ecmp --proto mptcp --pmanager ndiffports -diffports 1 --payloadsize long \
---post ../network-tests/postprocess.py --pcap
+# sudo ./run.sh --test ../network-tests/test.py \
+# --K 8 --router ecmp --proto mptcp --pmanager ndiffports -diffports 1 --payloadsize long \
+# --post ../network-tests/postprocess.py --pcap
 
-sudo ./run.sh --test ../network-tests/test.py \
---K 8 --router ecmp --proto mptcp --pmanager ndiffports -diffports 2 --payloadsize long \
---post ../network-tests/postprocess.py --pcap
+# sudo ./run.sh --test ../network-tests/test.py \
+# --K 8 --router ecmp --proto mptcp --pmanager ndiffports -diffports 2 --payloadsize long \
+# --post ../network-tests/postprocess.py --pcap
 
-sudo ./run.sh --test ../network-tests/test.py \
---K 8 --router ecmp --proto mptcp --pmanager ndiffports -diffports 4 --payloadsize long \
---post ../network-tests/postprocess.py --pcap
+# sudo ./run.sh --test ../network-tests/test.py \
+# --K 8 --router ecmp --proto mptcp --pmanager ndiffports -diffports 4 --payloadsize long \
+# --post ../network-tests/postprocess.py --pcap
 
-sudo ./run.sh --test ../network-tests/test.py \
---K 8 --router ecmp --proto mptcp --pmanager ndiffports -diffports 6 --payloadsize long \
---post ../network-tests/postprocess.py --pcap
+# sudo ./run.sh --test ../network-tests/test.py \
+# --K 8 --router ecmp --proto mptcp --pmanager ndiffports -diffports 6 --payloadsize long \
+# --post ../network-tests/postprocess.py --pcap
 
-sudo ./run.sh --test ../network-tests/test.py \
---K 8 --router ecmp --proto mptcp --pmanager ndiffports -diffports 8 --payloadsize long \
---post ../network-tests/postprocess.py --pcap
+# sudo ./run.sh --test ../network-tests/test.py \
+# --K 8 --router ecmp --proto mptcp --pmanager ndiffports -diffports 8 --payloadsize long \
+# --post ../network-tests/postprocess.py --pcap
