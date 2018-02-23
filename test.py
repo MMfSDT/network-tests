@@ -2,22 +2,11 @@ from random import sample, choice
 from os import path, makedirs
 from time import sleep
 import json
+from subprocess import Popen, PIPE
 
-# Switch to TCP/MPTCP
-# Arguments -
-# proto=tcp/mptcp, 					by default it's mptcp
-# pmanager=ndiffports/fullmesh
-# diffports=N
-# delimited by spaces
-# payloadsize = 1[KM]
+# Requirements
+## Note that network-tests and mininet-topo-generator should be in the same directory.
 
-# sample output:
-# proto=tcp
-#rawArgs = "proto=mptcp pmanager=ndiffports"
-
-
-# Ensure that logs directory exists in network-tests repository.
-# Note that network-tests and mininet-topo-generator should be in the same directory.
 directory = "../network-tests/logs/"
 filepath = directory + "args.txt"
 
@@ -25,30 +14,41 @@ with open(filepath, 'r') as jsonFile:
 	args = json.load(jsonFile)
 
 
-# Configure the hosts.
-for each in net.hosts:
-	print "*** Configuring host " + str(each)
+# Network configuration:
+print "*** Configuring network"
+## Protocol --proto [(mptcp),tcp]
+key = "net.mptcp.mptcp_enabled"
+val = 1 if args['proto'] == "mptcp" else 0
+p = Popen("sysctl -w %s=%s" % (key, val),
+		shell=True, stdout=PIPE, stderr=PIPE)
+stdout, stderr = p.communicate()
+print stdout[:-1]
+if len(stderr) != 0:
+	print stderr
 
-	# declare protocol
-	cmd = "sysctl -w net.mptcp.mptcp_enabled="
-	val = 1 if args['proto'] == "mptcp" else 0
-	print "*** Setting protocol to " + args['proto']
-	each.cmd(cmd+str(val))
+## Path manager --pmanager [(fullmesh),ndiffports]
+if args['proto'] == "mptcp":
+	key = "net.mptcp.mptcp_path_manager"
+	val = args['pmanager']
+	p = Popen("sysctl -w %s=%s" % (key, val),
+			shell=True, stdout=PIPE, stderr=PIPE)
+	stdout, stderr = p.communicate()
+	print stdout[:-1]
+	if len(stderr) != 0:
+		print stderr
 
-	# declare pmanager if mptcp
-	if args['proto'] == "mptcp":
-		cmd = "sysctl -w net.mptcp.mptcp_path_manager="
-		print "*** Setting path manager to " + args['pmanager']
-		each.cmd(cmd+args['pmanager'])
-
-		# configure diffports
-		if args['pmanager'] == "ndiffports":
-			cmd = "echo \"" + args['diffports'] + "\" | tee /sys/module/mptcp_ndiffports/parameters/num_subflows"
-			print "*** Setting diffports to " + args['diffports']
-			each.cmd(cmd)
+	## Ndiffports --diffports [(1)-16]
+	# if args['pmanager'] == "ndiffports":
+	# 	key = "echo " + args['diffports'] + " | tee /sys/module/mptcp_ndiffports/parameters/num_subflows"
+	# 	p = Popen(key, shell=True, stdout=PIPE, stderr=PIPE)
+	# stdout, stderr = p.communicate()
+	# print "/sys/module/mptcp_ndiffports/parameters/num_subflows =", stdout[:-1]
+	# if len(stderr) != 0:
+	# 	print stderr
 
 	print ""
 
+## Payload Size --payloadsize [(query),short,long]
 if args['payloadsize'] == "query":
 	payloadSize = "10K"
 elif args['payloadsize'] == "short":
@@ -56,10 +56,10 @@ elif args['payloadsize'] == "short":
 elif args['payloadsize'] == "long": 
 	payloadSize = "100M"
 
+## Run count --runcount [(10),N]
 runCount = int(args['runcount'])
 
 # Generate randomized sender/receiver pairs.
-#  It's a sad day.
 length = len(net.hosts)
 client = sample(xrange(length), length)
 
@@ -81,10 +81,6 @@ for server, client in zip(server, client):
 	serverCmd = "iperf -s &> /dev/null"
 	net.hosts[server].sendCmd(serverCmd)
 
-	# Run multiple iperf runs on the client.
-	#   Run is repeated runCount times.
-	#   Variable things:
-	#     (-n)umber of bytes to transmit n[KM]
 	results = []
 
 	sleep(0.1)
@@ -97,6 +93,7 @@ for server, client in zip(server, client):
 		results.append(net.hosts[client].cmd(clientCmd))
 		sleep(0.1)
 
+
 	# JSON FOR LIFE 
 	entry = { 'server': str(net.hosts[server]), 'client': str(net.hosts[client]), 'results': [] }
 	for each in results:
@@ -105,7 +102,6 @@ for server, client in zip(server, client):
 
 	net.hosts[server].sendInt()
 	net.hosts[server].monitor()
-
 
 # Write it into json dump middle file.
 filepath = directory + "mid.json"
