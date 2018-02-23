@@ -23,11 +23,11 @@ sudo ./run.sh --test ../network-tests/test.py \
 --post ../network-tests/postprocess.py --pcap
 
 sudo ./run.sh --test ../network-tests/test.py \
---K 4 --router static --proto tcp --pmanager fullmesh --payloadsize short \
+--K 4 --router static --proto mptcp --pmanager fullmesh --payloadsize short \
 --post ../network-tests/postprocess.py --pcap
 
 sudo ./run.sh --test ../network-tests/test.py \
---K 4 --router static --proto tcp --pmanager fullmesh --payloadsize long \
+--K 4 --router static --proto mptcp --pmanager fullmesh --payloadsize long \
 --post ../network-tests/postprocess.py --pcap
 
 
