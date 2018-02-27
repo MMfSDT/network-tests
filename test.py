@@ -38,13 +38,13 @@ if args['proto'] == "mptcp":
 		print stderr
 
 	## Ndiffports --diffports [(1)-16]
-	# if args['pmanager'] == "ndiffports":
-	# 	key = "echo " + args['diffports'] + " | tee /sys/module/mptcp_ndiffports/parameters/num_subflows"
-	# 	p = Popen(key, shell=True, stdout=PIPE, stderr=PIPE)
-	# stdout, stderr = p.communicate()
-	# print "/sys/module/mptcp_ndiffports/parameters/num_subflows =", stdout[:-1]
-	# if len(stderr) != 0:
-	# 	print stderr
+	if args['pmanager'] == "ndiffports":
+		key = "echo " + args['diffports'] + " | tee /sys/module/mptcp_ndiffports/parameters/num_subflows"
+		p = Popen(key, shell=True, stdout=PIPE, stderr=PIPE)
+	stdout, stderr = p.communicate()
+	print "/sys/module/mptcp_ndiffports/parameters/num_subflows =", stdout[:-1]
+	if len(stderr) != 0:
+		print stderr
 
 	print ""
 

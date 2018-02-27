@@ -32,15 +32,15 @@ sudo ./run.sh --test ../network-tests/test.py \
 
 
 sudo ./run.sh --test ../network-tests/test.py \
---K 4 --router static --proto mptcp --pmanager ndiffports -diffports 2 --payloadsize query \
+--K 4 --router static --proto mptcp --pmanager ndiffports --diffports 2 --payloadsize query \
 --post ../network-tests/postprocess.py --pcap
 
 sudo ./run.sh --test ../network-tests/test.py \
---K 4 --router static --proto mptcp --pmanager ndiffports -diffports 2 --payloadsize short \
+--K 4 --router static --proto mptcp --pmanager ndiffports --diffports 2 --payloadsize short \
 --post ../network-tests/postprocess.py --pcap
 
 sudo ./run.sh --test ../network-tests/test.py \
---K 4 --router static --proto mptcp --pmanager ndiffports -diffports 2 --payloadsize long \
+--K 4 --router static --proto mptcp --pmanager ndiffports --diffports 2 --payloadsize long \
 --post ../network-tests/postprocess.py --pcap
 
 
@@ -74,15 +74,15 @@ sudo ./run.sh --test ../network-tests/test.py \
 
 
 sudo ./run.sh --test ../network-tests/test.py \
---K 4 --router ecmp --proto mptcp --pmanager ndiffports -diffports 2 --payloadsize query \
+--K 4 --router ecmp --proto mptcp --pmanager ndiffports --diffports 2 --payloadsize query \
 --post ../network-tests/postprocess.py --pcap
 
 sudo ./run.sh --test ../network-tests/test.py \
---K 4 --router ecmp --proto mptcp --pmanager ndiffports -diffports 2 --payloadsize short \
+--K 4 --router ecmp --proto mptcp --pmanager ndiffports --diffports 2 --payloadsize short \
 --post ../network-tests/postprocess.py --pcap
 
 sudo ./run.sh --test ../network-tests/test.py \
---K 4 --router ecmp --proto mptcp --pmanager ndiffports -diffports 2 --payloadsize long \
+--K 4 --router ecmp --proto mptcp --pmanager ndiffports --diffports 2 --payloadsize long \
 --post ../network-tests/postprocess.py --pcap
 
 
