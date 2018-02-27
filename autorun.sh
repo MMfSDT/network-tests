@@ -45,45 +45,45 @@ sudo ./run.sh --test ../network-tests/test.py \
 
 
 #2. ECMP-TCP vs. ECMP-MPTCP-Fullmesh vs. 
-# ECMP-MPTCP-ndiffports-K/2, for K = 4, varying payloadsize (9 runs)
+# # ECMP-MPTCP-ndiffports-K/2, for K = 4, varying payloadsize (9 runs)
 
-sudo ./run.sh --test ../network-tests/test.py \
---K 4 --router ecmp --proto tcp --pmanager fullmesh --payloadsize query \
---post ../network-tests/postprocess.py --pcap
+# sudo ./run.sh --test ../network-tests/test.py \
+# --K 4 --router ecmp --proto tcp --pmanager fullmesh --payloadsize query \
+# --post ../network-tests/postprocess.py --pcap
 
-sudo ./run.sh --test ../network-tests/test.py \
---K 4 --router ecmp --proto tcp --pmanager fullmesh --payloadsize short \
---post ../network-tests/postprocess.py --pcap
+# sudo ./run.sh --test ../network-tests/test.py \
+# --K 4 --router ecmp --proto tcp --pmanager fullmesh --payloadsize short \
+# --post ../network-tests/postprocess.py --pcap
 
-sudo ./run.sh --test ../network-tests/test.py \
---K 4 --router ecmp --proto tcp --pmanager fullmesh --payloadsize long \
---post ../network-tests/postprocess.py --pcap
-
-
-sudo ./run.sh --test ../network-tests/test.py \
---K 4 --router ecmp --proto mptcp --pmanager fullmesh --payloadsize query \
---post ../network-tests/postprocess.py --pcap
-
-sudo ./run.sh --test ../network-tests/test.py \
---K 4 --router ecmp --proto mptcp --pmanager fullmesh --payloadsize short \
---post ../network-tests/postprocess.py --pcap
-
-sudo ./run.sh --test ../network-tests/test.py \
---K 4 --router ecmp --proto mptcp --pmanager fullmesh --payloadsize long \
---post ../network-tests/postprocess.py --pcap
+# sudo ./run.sh --test ../network-tests/test.py \
+# --K 4 --router ecmp --proto tcp --pmanager fullmesh --payloadsize long \
+# --post ../network-tests/postprocess.py --pcap
 
 
-sudo ./run.sh --test ../network-tests/test.py \
---K 4 --router ecmp --proto mptcp --pmanager ndiffports -diffports 2 --payloadsize query \
---post ../network-tests/postprocess.py --pcap
+# sudo ./run.sh --test ../network-tests/test.py \
+# --K 4 --router ecmp --proto mptcp --pmanager fullmesh --payloadsize query \
+# --post ../network-tests/postprocess.py --pcap
 
-sudo ./run.sh --test ../network-tests/test.py \
---K 4 --router ecmp --proto mptcp --pmanager ndiffports -diffports 2 --payloadsize short \
---post ../network-tests/postprocess.py --pcap
+# sudo ./run.sh --test ../network-tests/test.py \
+# --K 4 --router ecmp --proto mptcp --pmanager fullmesh --payloadsize short \
+# --post ../network-tests/postprocess.py --pcap
 
-sudo ./run.sh --test ../network-tests/test.py \
---K 4 --router ecmp --proto mptcp --pmanager ndiffports -diffports 2 --payloadsize long \
---post ../network-tests/postprocess.py --pcap
+# sudo ./run.sh --test ../network-tests/test.py \
+# --K 4 --router ecmp --proto mptcp --pmanager fullmesh --payloadsize long \
+# --post ../network-tests/postprocess.py --pcap
+
+
+# sudo ./run.sh --test ../network-tests/test.py \
+# --K 4 --router ecmp --proto mptcp --pmanager ndiffports -diffports 2 --payloadsize query \
+# --post ../network-tests/postprocess.py --pcap
+
+# sudo ./run.sh --test ../network-tests/test.py \
+# --K 4 --router ecmp --proto mptcp --pmanager ndiffports -diffports 2 --payloadsize short \
+# --post ../network-tests/postprocess.py --pcap
+
+# sudo ./run.sh --test ../network-tests/test.py \
+# --K 4 --router ecmp --proto mptcp --pmanager ndiffports -diffports 2 --payloadsize long \
+# --post ../network-tests/postprocess.py --pcap
 
 
 # 3. ECMP-MPTCP-Fullmesh vs. 
