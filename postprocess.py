@@ -29,7 +29,8 @@ def time ():
 topopath = abspath(".") # TODO change this omg
 # topopath = abspath("../original-captures/") # TODO change this omg
 logpath = abspath("../network-tests/logs/")
-pcappath = abspath("../network-tests/logs/pcaps/pcap-{}".format(time()))
+standardtime = time()
+pcappath = abspath("../network-tests/logs/pcaps/pcap-{}".format(standardtime))
 midfile = join(logpath, "mid.json")
 argsfile = join(logpath, "args.txt")
 aggregatefile = join(logpath, "aggregate.json")
@@ -104,7 +105,7 @@ def processJSONFiles ():
     with open(argsfile, 'r') as jsonFile:
         print("*** Reading args.txt file from test script.")
         args = json.load(jsonFile)
-        args['timestamp'] = time()
+        args['timestamp'] = standardtime
         print("*** Using the following test arguments:")
         print(json.dumps(args, indent=4, sort_keys=True))
 
