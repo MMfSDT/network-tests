@@ -50,12 +50,13 @@ if args['proto'] == "mptcp":
 	print ""
 
 ## Payload Size --payloadsize [(query),short,long]
+### Addendum: Quarter size lonf due to test time
 if args['payloadsize'] == "query":
 	payloadSize = "10K"
 elif args['payloadsize'] == "short":
 	payloadSize = "500K"
 elif args['payloadsize'] == "long": 
-	payloadSize = "100M"
+	payloadSize = "25M"
 
 ## Run count --runcount [(10),N]
 runCount = int(args['runcount'])
