@@ -113,15 +113,14 @@ def processJSONFiles ():
         print("*** Reading mid.json file from test script.")
         entries = json.load(jsonFile)
 
-    with open(aggregatefile, 'r+') as jsonFile:
+    try:
         print("*** Reading aggregate.json file.")
-
-        try:
-            aggregate = json.load(jsonFile)
-        except ValueError:
-            print("*** Creating new aggregate.json file.")
-            aggregate = []
-            json.dump(aggregate, jsonFile)
+    	with open(aggregatefile, 'r+') as jsonFile:
+			aggregate = json.load(jsonFile)
+    except (ValueError, IOError) as e:
+        print("*** Creating new aggregate.json file.")
+        aggregate = []
+        json.dump(aggregate, jsonFile)
 
     entries = includeFCT(entries)
     aggregate.append({ "metadata": args, "entries": entries })
