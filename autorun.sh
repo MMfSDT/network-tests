@@ -81,9 +81,9 @@ cd ../mininet-topo-generator
 # --K 4 --router ecmp --proto mptcp --pmanager ndiffports --diffports 2 --payloadsize short \
 # --post ../network-tests/postprocess.py --pcap
 
-sudo ./run.sh --test ../network-tests/test.py \
---K 4 --router ecmp --proto mptcp --pmanager ndiffports --diffports 2 --payloadsize long \
---post ../network-tests/postprocess.py --pcap
+# sudo ./run.sh --test ../network-tests/test.py \
+# --K 4 --router ecmp --proto mptcp --pmanager ndiffports --diffports 2 --payloadsize long \
+# --post ../network-tests/postprocess.py --pcap
 
 
 # 3. ECMP-MPTCP-Fullmesh vs. 
