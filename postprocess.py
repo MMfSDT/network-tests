@@ -120,7 +120,8 @@ def processJSONFiles ():
     except (ValueError, IOError) as e:
         print("*** Creating new aggregate.json file.")
         aggregate = []
-        json.dump(aggregate, jsonFile)
+        with open(aggregatefile, 'w+') as jsonFile:
+        	json.dump(aggregate, jsonFile)
 
     entries = includeFCT(entries)
     aggregate.append({ "metadata": args, "entries": entries })

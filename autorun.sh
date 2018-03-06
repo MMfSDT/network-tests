@@ -1,6 +1,8 @@
 #!/bin/bash
 # run with `nohup sudo ./autorun.sh &`
 
+# Clean processes first.
+sudo ./clean_nohup.sh
 
 cd ../mininet-topo-generator
 
