@@ -1,5 +1,5 @@
 #!/bin/bash
-# run with `nohup ./autorun.sh &`
+# run with `nohup sudo ./autorun.sh &`
 
 
 cd ../mininet-topo-generator
