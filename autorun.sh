@@ -7,7 +7,7 @@ sudo ./clean_nohup.sh
 cd ../mininet-topo-generator
 
 update_status () {
-	curl -d '{"message": "'"$1"'"}' -H "Content-Type: application/json" -X POST https://bash-status-update-tqumgsgehc.now.sh/
+	curl -d '{"message": "'"$1"'"}' -H "Content-Type: application/json" -X POST https://bash-status-update-bltvqgahwr.now.sh/
 }
 
 # New tests (March 6)
