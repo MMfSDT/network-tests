@@ -5,7 +5,7 @@
 cd ../mininet-topo-generator
 
 update_status () {
-	curl -d '{"message": "'"$1"'"}' -H "Content-Type: application/json" -X POST https://bash-status-update-bcfojakuzq.now.sh/
+	curl -d '{"message": "'"$1"'"}' -H "Content-Type: application/json" -X POST https://bash-status-update-tqumgsgehc.now.sh/
 }
 
 # New tests (March 6)
@@ -151,32 +151,32 @@ sudo ./run.sh --test ../network-tests/test.py \
 update_status "15. ps - mptcp - long - k = 4 - 5 runs (DONE)"
 
 ## PS - MPTCP - NDIFFPORTS - 4
-# test 7
-update_status "7. ps - mptcp - 4 ndiffports - query - k = 4 - 5 runs (RUNNING)"
+# test 16
+update_status "16. ps - mptcp - 4 ndiffports - query - k = 4 - 5 runs (RUNNING)"
 
 sudo ./run.sh --test ../network-tests/test.py \
 --K 4 --router ps --proto mptcp --pmanager ndiffports --diffports 4 --payloadsize query --runcount 5 \
 --post ../network-tests/postprocess.py --pcap
 
-update_status "7. ps - mptcp - 4 ndiffports - query - k = 4 - 5 runs (DONE)"
+update_status "16. ps - mptcp - 4 ndiffports - query - k = 4 - 5 runs (DONE)"
 
-# test 2
-update_status "2. ps - mptcp - 4 ndiffports - short - k = 4 - 5 runs (RUNNING)"
+# test 17
+update_status "17. ps - mptcp - 4 ndiffports - short - k = 4 - 5 runs (RUNNING)"
 
 sudo ./run.sh --test ../network-tests/test.py \
 --K 4 --router ps --proto mptcp --pmanager ndiffports --diffports 4 --payloadsize short --runcount 5 \
 --post ../network-tests/postprocess.py --pcap
 
-update_status "2. ps - mptcp - 4 ndiffports - short - k = 4 - 5 runs (DONE)"
+update_status "17. ps - mptcp - 4 ndiffports - short - k = 4 - 5 runs (DONE)"
 
-# test 3
-update_status "3. ps - mptcp - 4 ndiffports - long - k = 4 - 5 runs (RUNNING)"
+# test 18
+update_status "18. ps - mptcp - 4 ndiffports - long - k = 4 - 5 runs (RUNNING)"
 
 sudo ./run.sh --test ../network-tests/test.py \
 --K 4 --router ps --proto mptcp --pmanager ndiffports --diffports 4 --payloadsize long --runcount 5 \
 --post ../network-tests/postprocess.py --pcap
 
-update_status "3. ps - mptcp - 4 ndiffports - long - k = 4 - 5 runs (DONE)"
+update_status "18. ps - mptcp - 4 ndiffports - long - k = 4 - 5 runs (DONE)"
 
 # Old tests (pre-March 6)
 
