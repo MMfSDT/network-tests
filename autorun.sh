@@ -10,73 +10,73 @@ update_status () {
 	curl -d '{"message": "'"$1"'"}' -H "Content-Type: application/json" -X POST https://bash-status-update-bltvqgahwr.now.sh/
 }
 
-# New tests (March 6)
+# # New tests (March 6)
 
-## STATIC - TCP
-# test 1
-update_status "1. static - tcp - query - k = 4 - 5 runs (RUNNING)"
+# ## STATIC - TCP
+# # test 1
+# update_status "1. static - tcp - query - k = 4 - 5 runs (RUNNING)"
 
-sudo ./run.sh --test ../network-tests/test.py \
---K 4 --router static --proto tcp --payloadsize query --runcount 5 \
---post ../network-tests/postprocess.py --pcap
+# sudo ./run.sh --test ../network-tests/test.py \
+# --K 4 --router static --proto tcp --payloadsize query --runcount 5 \
+# --post ../network-tests/postprocess.py --pcap
 
-update_status "1. static - tcp - query - k = 4 - 5 runs (DONE)"
+# update_status "1. static - tcp - query - k = 4 - 5 runs (DONE)"
 
-# test 2
-update_status "2. static - tcp - short - k = 4 - 5 runs (RUNNING)"
+# # test 2
+# update_status "2. static - tcp - short - k = 4 - 5 runs (RUNNING)"
 
-sudo ./run.sh --test ../network-tests/test.py \
---K 4 --router static --proto tcp --payloadsize short --runcount 5 \
---post ../network-tests/postprocess.py --pcap
+# sudo ./run.sh --test ../network-tests/test.py \
+# --K 4 --router static --proto tcp --payloadsize short --runcount 5 \
+# --post ../network-tests/postprocess.py --pcap
 
-update_status "2. static - tcp - short - k = 4 - 5 runs (DONE)"
+# update_status "2. static - tcp - short - k = 4 - 5 runs (DONE)"
 
-# test 3
-update_status "3. static - tcp - long - k = 4 - 5 runs (RUNNING)"
+# # test 3
+# update_status "3. static - tcp - long - k = 4 - 5 runs (RUNNING)"
 
-sudo ./run.sh --test ../network-tests/test.py \
---K 4 --router static --proto tcp --payloadsize long --runcount 5 \
---post ../network-tests/postprocess.py --pcap
+# sudo ./run.sh --test ../network-tests/test.py \
+# --K 4 --router static --proto tcp --payloadsize long --runcount 5 \
+# --post ../network-tests/postprocess.py --pcap
 
-update_status "3. static - tcp - long - k = 4 - 5 runs (DONE)"
+# update_status "3. static - tcp - long - k = 4 - 5 runs (DONE)"
 
-## ECMP - MPTCP - FULLMESH
-# test 4
-update_status "4. ecmp - mptcp - fullmesh - query - k = 4 - 5 runs (RUNNING)"
+# ## ECMP - MPTCP - FULLMESH
+# # test 4
+# update_status "4. ecmp - mptcp - fullmesh - query - k = 4 - 5 runs (RUNNING)"
 
-sudo ./run.sh --test ../network-tests/test.py \
---K 4 --router ecmp --proto mptcp --pmanager fullmesh --payloadsize query --runcount 5 \
---post ../network-tests/postprocess.py --pcap
+# sudo ./run.sh --test ../network-tests/test.py \
+# --K 4 --router ecmp --proto mptcp --pmanager fullmesh --payloadsize query --runcount 5 \
+# --post ../network-tests/postprocess.py --pcap
 
-update_status "4. ecmp - mptcp - query - k = 4 - 5 runs (DONE)"
+# update_status "4. ecmp - mptcp - query - k = 4 - 5 runs (DONE)"
 
-# test 5
-update_status "5. ecmp - mptcp - fullmesh - short - k = 4 - 5 runs (RUNNING)"
+# # test 5
+# update_status "5. ecmp - mptcp - fullmesh - short - k = 4 - 5 runs (RUNNING)"
 
-sudo ./run.sh --test ../network-tests/test.py \
---K 4 --router ecmp --proto mptcp --pmanager fullmesh --payloadsize short --runcount 5 \
---post ../network-tests/postprocess.py --pcap
+# sudo ./run.sh --test ../network-tests/test.py \
+# --K 4 --router ecmp --proto mptcp --pmanager fullmesh --payloadsize short --runcount 5 \
+# --post ../network-tests/postprocess.py --pcap
 
-update_status "5. ecmp - mptcp - short - k = 4 - 5 runs (DONE)"
+# update_status "5. ecmp - mptcp - short - k = 4 - 5 runs (DONE)"
 
-# test 6
-update_status "6. ecmp - mptcp - fullmesh - long - k = 4 - 5 runs (RUNNING)"
+# # test 6
+# update_status "6. ecmp - mptcp - fullmesh - long - k = 4 - 5 runs (RUNNING)"
 
-sudo ./run.sh --test ../network-tests/test.py \
---K 4 --router ecmp --proto mptcp --pmanager fullmesh --payloadsize long --runcount 5 \
---post ../network-tests/postprocess.py --pcap
+# sudo ./run.sh --test ../network-tests/test.py \
+# --K 4 --router ecmp --proto mptcp --pmanager fullmesh --payloadsize long --runcount 5 \
+# --post ../network-tests/postprocess.py --pcap
 
-update_status "6. ecmp - mptcp - long - k = 4 - 5 runs (DONE)"
+# update_status "6. ecmp - mptcp - long - k = 4 - 5 runs (DONE)"
 
-## ECMP - MPTCP - NDIFFPORTS - 4
-# test 7
-update_status "7. ecmp - mptcp - 2 ndiffports - query - k = 4 - 5 runs (RUNNING)"
+# ## ECMP - MPTCP - NDIFFPORTS - 4
+# # test 7
+# update_status "7. ecmp - mptcp - 2 ndiffports - query - k = 4 - 5 runs (RUNNING)"
 
-sudo ./run.sh --test ../network-tests/test.py \
---K 4 --router ecmp --proto mptcp --pmanager ndiffports --diffports 4 --payloadsize query --runcount 5 \
---post ../network-tests/postprocess.py --pcap
+# sudo ./run.sh --test ../network-tests/test.py \
+# --K 4 --router ecmp --proto mptcp --pmanager ndiffports --diffports 4 --payloadsize query --runcount 5 \
+# --post ../network-tests/postprocess.py --pcap
 
-update_status "7. ecmp - mptcp - 2 ndiffports - query - k = 4 - 5 runs (DONE)"
+# update_status "7. ecmp - mptcp - 2 ndiffports - query - k = 4 - 5 runs (DONE)"
 
 # test 8
 update_status "8. ecmp - mptcp - 2 ndiffports - short - k = 4 - 5 runs (RUNNING)"
