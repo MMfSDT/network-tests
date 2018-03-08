@@ -70,31 +70,31 @@ update_status () {
 
 # ## ECMP - MPTCP - NDIFFPORTS - 4
 # # test 7
-# update_status "7. ecmp - mptcp - 2 ndiffports - query - k = 4 - 5 runs (RUNNING)"
+# update_status "7. ecmp - mptcp - 4 ndiffports - query - k = 4 - 5 runs (RUNNING)"
 
 # sudo ./run.sh --test ../network-tests/test.py \
 # --K 4 --router ecmp --proto mptcp --pmanager ndiffports --diffports 4 --payloadsize query --runcount 5 \
 # --post ../network-tests/postprocess.py --pcap
 
-# update_status "7. ecmp - mptcp - 2 ndiffports - query - k = 4 - 5 runs (DONE)"
+# update_status "7. ecmp - mptcp - 4 ndiffports - query - k = 4 - 5 runs (DONE)"
 
 # test 8
-update_status "8. ecmp - mptcp - 2 ndiffports - short - k = 4 - 5 runs (RUNNING)"
+update_status "8. ecmp - mptcp - 4 ndiffports - short - k = 4 - 5 runs (RUNNING)"
 
 sudo ./run.sh --test ../network-tests/test.py \
 --K 4 --router ecmp --proto mptcp --pmanager ndiffports --diffports 4 --payloadsize short --runcount 5 \
 --post ../network-tests/postprocess.py --pcap
 
-update_status "8. ecmp - mptcp - 2 ndiffports - short - k = 4 - 5 runs (DONE)"
+update_status "8. ecmp - mptcp - 4 ndiffports - short - k = 4 - 5 runs (DONE)"
 
 # test 9
-update_status "9. ecmp - mptcp - 2 ndiffports - long - k = 4 - 5 runs (RUNNING)"
+update_status "9. ecmp - mptcp - 4 ndiffports - long - k = 4 - 5 runs (RUNNING)"
 
 sudo ./run.sh --test ../network-tests/test.py \
 --K 4 --router ecmp --proto mptcp --pmanager ndiffports --diffports 4 --payloadsize long --runcount 5 \
 --post ../network-tests/postprocess.py --pcap
 
-update_status "9. ecmp - mptcp - 2 ndiffports - long - k = 4 - 5 runs (DONE)"
+update_status "9. ecmp - mptcp - 4 ndiffports - long - k = 4 - 5 runs (DONE)"
 
 ## PS - TCP
 # test 10
