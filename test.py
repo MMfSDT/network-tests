@@ -1,11 +1,11 @@
-from random import sample, choice
 from os import path, makedirs
+from random import sample, choice
+from subprocess import Popen, PIPE
 from time import sleep
 import json
-from subprocess import Popen, PIPE
 
-# Requirements
-## Note that network-tests and mininet-topo-generator should be in the same directory.
+# Configuration
+## network-tests and mininet-topo-generator should be in the same directory
 
 directory = "../network-tests/logs/"
 filepath = directory + "args.txt"
@@ -96,7 +96,7 @@ for server, client in zip(server, client):
 		sleep(0.1)
 
 
-	# JSON FOR LIFE 
+	# Format the results into a json format
 	entry = { 'server': str(net.hosts[server]), 'client': str(net.hosts[client]), 'results': [] }
 	for each in results:
 		entry['results'].append({ 'throughput': int(each.split(",")[-1][:-1].strip()), 'fct': 0 })
