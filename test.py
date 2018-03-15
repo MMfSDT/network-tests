@@ -61,20 +61,26 @@ elif args['payloadsize'] == "long":
 ## Run count --runcount [(10),N]
 runCount = int(args['runcount'])
 
+
+
 # Generate randomized sender/receiver pairs.
+## Each host will be placed into a fixed pair for the entirety of the tests.
 length = len(net.hosts)
-client = sample(xrange(length), length)
+client = sample(xrange(length), length/2)
 
 server = []
-for each in range(0, length):
-	server.append(choice([x for x in client if x not in server]))
+for each in range(0, length/2):
+	print "foobar"
+	reserved = server + client
+	server.append(choice([x for x in range(0, length) if x not in reserved]))
 
-	while server[-1] == client[len(server) - 1]:
-		server[-1] = choice([x for x in client if x not in server])
-
-print "*** Servers: " + str(server)
-print "*** Clients: " + str(client)
+print "*** Server-Client pairs"
+for server, client in zip(server, client):
+	print str(server) + "-" + str(client)
 print ""
+
+# We might have to log these down into another log file later on for parsing.
+## Indicate the pairing, the time executed, and other pertinent details.
 
 # Iterate through the previously generated server/client pairs.
 entries = []
