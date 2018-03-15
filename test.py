@@ -61,60 +61,80 @@ elif args['payloadsize'] == "long":
 ## Run count --runcount [(10),N]
 runCount = int(args['runcount'])
 
-
-
 # Generate randomized sender/receiver pairs.
 ## Each host will be placed into a fixed pair for the entirety of the tests.
 length = len(net.hosts)
-client = sample(xrange(length), length/2)
+clients = sample(xrange(length), length/2)
 
-server = []
+servers = []
 for each in range(0, length/2):
-	print "foobar"
-	reserved = server + client
-	server.append(choice([x for x in range(0, length) if x not in reserved]))
+	reserved = servers + clients
+	servers.append(choice([x for x in range(0, length) if x not in reserved]))
 
 print "*** Server-Client pairs"
-for server, client in zip(server, client):
-	print str(server) + "-" + str(client)
+for server, client in zip(servers, clients):
+	print "*** " + str(net.hosts[server]) + "-" + str(net.hosts[client])
 print ""
 
 # We might have to log these down into another log file later on for parsing.
 ## Indicate the pairing, the time executed, and other pertinent details.
 
-# Iterate through the previously generated server/client pairs.
 entries = []
-for server, client in zip(server, client):
-	# Start iperf on server host (non-blocking).
-	serverCmd = "iperf -s &> /dev/null"
-	net.hosts[server].sendCmd(serverCmd)
+# Start iperf on all servers host (non-blocking).
+serverCmd = "iperf -s &> /dev/null"
+for host in servers:
+	net.hosts[host].sendCmd(serverCmd)
 
-	results = []
+print "*** starting iperf servers..."
+print ""
+sleep(1)
 
-	sleep(0.1)
-	print "Testing server-client pair " + \
-		str(net.hosts[server]) + " " + str(net.hosts[client])
-	for each in range(0, runCount):
-		clientCmd = "iperf -c" +  net.hosts[server].IP() \
-			+ " -n " + payloadSize + " -y c -x CSMV"
+for host in clients:
+	clientCmd = "iperf -c" + net.hosts[server].IP() + " -n " + "1" + " -y c -x CSMV" \
+	+ " >> ../network-tests/logs/tp/" + str(net.hosts[host]) + "-log"
+	net.hosts[host].sendCmd(clientCmd)
 
-		results.append(net.hosts[client].cmd(clientCmd))
-		sleep(0.1)
+# Wait for the senders to finish before closing them
+## Improve this to make it less hodgepodge.
+while net.hosts[clients[-1]].waiting == True:
+	net.hosts[clients[-1]].monitor()
+
+for host in servers:
+	print "*** stopping host " + str(net.hosts[host])
+	net.hosts[host].sendInt()
+	net.hosts[host].monitor()
+
+# for server, client in zip(server, client):
+	
+# 	serverCmd = "iperf -s &> /dev/null"
+# 	net.hosts[server].sendCmd(serverCmd)
+
+# 	results = []
+
+# 	sleep(0.1)
+# 	print "Testing server-client pair " + \
+# 		str(net.hosts[server]) + " " + str(net.hosts[client])
+# 	for each in range(0, runCount):
+# 		clientCmd = "iperf -c" +  net.hosts[server].IP() \
+# 			+ " -n " + payloadSize + " -y c -x CSMV"
+
+# 		results.append(net.hosts[client].cmd(clientCmd))
+# 		sleep(0.1)
 
 
-	# Format the results into a json format
-	entry = { 'server': str(net.hosts[server]), 'client': str(net.hosts[client]), 'results': [] }
-	for each in results:
-		entry['results'].append({ 'throughput': int(each.split(",")[-1][:-1].strip()), 'fct': 0 })
-	entries.append(entry)
+# 	# Format the results into a json format
+# 	entry = { 'server': str(net.hosts[server]), 'client': str(net.hosts[client]), 'results': [] }
+# 	for each in results:
+# 		entry['results'].append({ 'throughput': int(each.split(",")[-1][:-1].strip()), 'fct': 0 })
+# 	entries.append(entry)
 
-	net.hosts[server].sendInt()
-	net.hosts[server].monitor()
+# 	net.hosts[server].sendInt()
+# 	net.hosts[server].monitor()
 
-# Write it into json dump middle file.
-filepath = directory + "mid.json"
-with open(filepath, 'w+') as jsonFile:
-	json.dump(entries, jsonFile)
+# # Write it into json dump middle file.
+# filepath = directory + "mid.json"
+# with open(filepath, 'w+') as jsonFile:
+# 	json.dump(entries, jsonFile)
 
 print ""
 print "Test complete."
