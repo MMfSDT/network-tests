@@ -89,15 +89,14 @@ print "*** starting iperf servers..."
 print ""
 sleep(1)
 
-for host in clients:
+for client, server in zip(clients, servers):
 	clientCmd = "iperf -c" + net.hosts[server].IP() + " -n " + "1" + " -y c -x CSMV" \
-	+ " >> ../network-tests/logs/tp/" + str(net.hosts[host]) + "-log"
-	net.hosts[host].sendCmd(clientCmd)
+	+ " >> ../network-tests/logs/tp/" + str(net.hosts[client]) + "-log"
+	net.hosts[client].sendCmd(clientCmd)
 
 # Wait for the senders to finish before closing them
-## Improve this to make it less hodgepodge.
-while net.hosts[clients[-1]].waiting == True:
-	net.hosts[clients[-1]].monitor()
+for host in clients:
+	net.hosts[host].monitor()
 
 for host in servers:
 	print "*** stopping host " + str(net.hosts[host])
