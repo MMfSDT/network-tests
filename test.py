@@ -1,8 +1,13 @@
 from os import path, makedirs
 from random import sample, choice
+from datetime import datetime
 from subprocess import Popen, PIPE
 from time import sleep
 import json
+
+def time ():
+    # Python cheat to get time from Unix epoch
+    return int(datetime.now().strftime("%s")) * 1000
 
 # Configuration
 ## network-tests and mininet-topo-generator should be in the same directory
@@ -90,6 +95,7 @@ print ""
 sleep(1)
 
 for client, server in zip(clients, servers):
+	# Append time into the log file
 	clientCmd = "iperf -c" + net.hosts[server].IP() + " -n " + "1" + " -y c -x CSMV" \
 	+ " >> ../network-tests/logs/tp/" + str(net.hosts[client]) + "-log"
 	net.hosts[client].sendCmd(clientCmd)
