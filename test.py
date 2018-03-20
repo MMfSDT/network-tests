@@ -103,26 +103,30 @@ if testingInterval != "random":
 		net.hosts[client].sendCmd(clientCmd)
 
 else:
+	print "potato"
 	serverCmd = "iperf -s &> /dev/null"
 	for host in servers:
-		net.host[host].sendCmd(serverCmd)
+		net.hosts[host].sendCmd(serverCmd)
 
 	print "*** starting iperf servers..."
 	print ""
 	sleep(1)
 
-	endTime = time() + testingInterval
+	endTime = time() + testingTime
 	clientQueue = clients
 	# Start the randomization process
 	while time() < endTime:
-		client = sample(clientQueue, 1)
-		clientQueue.remove(client)
+		if len(clientQueue) != 0:
+			client = sample(clientQueue, 1)[0]
+			clientQueue.remove(client)
+		else:
+			break
 
-		clientCmd = "iperf -c" + net.hosts[server].IP() + " -n " + "1" + " -y c -x CSMV" \
+		clientCmd = "iperf -c" + net.hosts[servers[clients.index(client)]].IP() + " -n " + "1" + " -y c -x CSMV" \
 		+ " >> ../network-tests/logs/tp/" + str(net.hosts[client]) + "-log"
 		net.hosts[client].sendCmd(clientCmd)
 
-		waitInterval = uniform(0, testingInterval/len(clients))
+		waitInterval = uniform(0, testingTime/len(clients))
 		sleep(waitInterval)
 
 # Wait for the senders to finish before closing them
