@@ -1,13 +1,11 @@
 from os import path, makedirs
-from random import sample, choice
-from datetime import datetime
+from random import sample, choice, uniform
+from time import time
 from subprocess import Popen, PIPE
 from time import sleep
 import json
 
-def time ():
-    # Python cheat to get time from Unix epoch
-    return int(datetime.now().strftime("%s")) * 1000
+testingInterval = "random"
 
 # Configuration
 ## network-tests and mininet-topo-generator should be in the same directory
@@ -56,12 +54,16 @@ if args['proto'] == "mptcp":
 
 ## Payload Size --payloadsize [(query),short,long]
 ### Addendum: Quarter size lonf due to test time
+### Set maximum time for test
 if args['payloadsize'] == "query":
 	payloadSize = "10K"
+	testingTime = 0.1
 elif args['payloadsize'] == "short":
 	payloadSize = "500K"
+	testingTime = 1
 elif args['payloadsize'] == "long": 
 	payloadSize = "25M"
+	testingTime = 100
 
 ## Run count --runcount [(10),N]
 runCount = int(args['runcount'])
@@ -84,21 +86,44 @@ print ""
 # We might have to log these down into another log file later on for parsing.
 ## Indicate the pairing, the time executed, and other pertinent details.
 
-entries = []
-# Start iperf on all servers host (non-blocking).
-serverCmd = "iperf -s &> /dev/null"
-for host in servers:
-	net.hosts[host].sendCmd(serverCmd)
+if testingInterval != "random":
+	# Start iperf on all servers host (non-blocking).
+	serverCmd = "iperf -s &> /dev/null"
+	for host in servers:
+		net.hosts[host].sendCmd(serverCmd)
 
-print "*** starting iperf servers..."
-print ""
-sleep(1)
+	print "*** starting iperf servers..."
+	print ""
+	sleep(1)
 
-for client, server in zip(clients, servers):
-	# Append time into the log file
-	clientCmd = "iperf -c" + net.hosts[server].IP() + " -n " + "1" + " -y c -x CSMV" \
-	+ " >> ../network-tests/logs/tp/" + str(net.hosts[client]) + "-log"
-	net.hosts[client].sendCmd(clientCmd)
+	for client, server in zip(clients, servers):
+		# Append time into the log file
+		clientCmd = "iperf -c" + net.hosts[server].IP() + " -n " + "1" + " -y c -x CSMV" \
+		+ " >> ../network-tests/logs/tp/" + str(net.hosts[client]) + "-log"
+		net.hosts[client].sendCmd(clientCmd)
+
+else:
+	serverCmd = "iperf -s &> /dev/null"
+	for host in servers:
+		net.host[host].sendCmd(serverCmd)
+
+	print "*** starting iperf servers..."
+	print ""
+	sleep(1)
+
+	endTime = time() + testingInterval
+	clientQueue = clients
+	# Start the randomization process
+	while time() < endTime:
+		client = sample(clientQueue, 1)
+		clientQueue.remove(client)
+
+		clientCmd = "iperf -c" + net.hosts[server].IP() + " -n " + "1" + " -y c -x CSMV" \
+		+ " >> ../network-tests/logs/tp/" + str(net.hosts[client]) + "-log"
+		net.hosts[client].sendCmd(clientCmd)
+
+		waitInterval = uniform(0, testingInterval/len(clients))
+		sleep(waitInterval)
 
 # Wait for the senders to finish before closing them
 for host in clients:
