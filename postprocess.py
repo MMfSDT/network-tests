@@ -86,7 +86,7 @@ def includeFCT (entries):
     print("*** Extracting FCT from .pcap files.")
     for index, entry in enumerate(entries):
         fcts = Popen(["sh", "-c", 
-                "tshark -qz conv,tcp,ip.addr=={} -r {} | sed -e 1,5d | head -n -1 | sort -k 10 -n | awk -F' ' '{{print $11}}'".format(
+                "sudo -u \"$SUDO_USER\" tshark -qz conv,tcp,ip.addr=={} -r {} | sed -e 1,5d | head -n -1 | sort -k 10 -n | awk -F' ' '{{print $11}}'".format(
                     convertServerToIP(entry['server']), 
                     getClientInterface(entry['client'])
                 )], stdout=PIPE).communicate()[0].splitlines()
