@@ -88,79 +88,67 @@ print ""
 ## Indicate the pairing, the time executed, and other pertinent details.
 
 if test == "onetomany":
-	# Transfer directories to network-tests/files where the payloads are 
-	print "*** changing directories"
-	cmd = "cd ../network-tests/files"
-	net.hosts[clients[0]].cmd(cmd)
-
-	# Start SimpleHTTPServer an all servers
-	print "*** starting servers"
-	for host in servers:
-		# Make sure all hosts in the servers list have changed directories
+	print "*** changing host directories to ../network-tests/files"
+	for host in range(0, length):
 		if net.hosts[host].cmd("pwd")[-5:] != "files":
 			cmd = "cd ../network-tests/files"
 			net.hosts[host].cmd(cmd)
 
-		cmd = "python -m SimpleHTTPServer &> /dev/null"
+	sleep(1)
+
+	print "*** starting simple python servers"
+	for host in servers:
+		cmd = "python -m SimpleHTTPServer &"
 		net.hosts[host].sendCmd(cmd)
+
+	print "*** sending requests"
+	for host in servers:
+		cmd = "wget " + str(net.hosts[host].IP()) + ":8000/" + args['payloadsize'] + ".out" \
+			" -P dump/ &"
+
+		net.hosts[clients[0]].cmd(cmd)
+		print "sent request to " + str(net.hosts[host])
+
+	print "*** waiting for clients to finish request"
+	for host in clients:
+	 	net.hosts[host].monitor()
+
+	print "*** terminating simple python servers"
+	for host in servers:
+		net.hosts[host].sendInt()
+		net.hosts[host].monitor()
+
+elif test == "manytoone":
+	print "*** changing host directories to ../network-tests/files"
+	for host in range(0, length):
+		if net.hosts[host].cmd("pwd")[-5:] != "files":
+			cmd = "cd ../network-tests/files"
+			net.hosts[host].cmd(cmd)
 
 	sleep(1)
 
-	# Begin the file transfer
-	# Ip address, port, file for the wget command
+	print "*** starting simple python servers"
+	for host in clients:
+		cmd = "python -m SimpleHTTPServer &"
+		net.hosts[host].sendCmd(cmd)
+
 	print "*** sending requests"
-	for each in servers:
-		# cmd = "wget " + str(net.hosts[each].IP()) + ":8000/" + args['payloadsize'] + ".out" \
-		# 	" -P dump/" + args['payloadsize'] + "-" + str(each) + ".out"
-		
-		cmd = "wget " + str(net.hosts[each].IP()) + ":8000/" + args['payloadsize'] + ".out" + \
+	for host in servers:
+		cmd = "wget " + str(net.hosts[clients[0]].IP()) + ":8000/" + args['payloadsize'] + ".out" \
 			" -P dump/ &"
 
-		print "Sending request to " + str(net.hosts[each])
-		net.hosts[clients[0]].cmd(cmd)
+		net.hosts[host].cmd(cmd)
+		print "sent request from " + str(net.hosts[host])
 
+	print "*** waiting for clients to finish request"
+	for host in servers:
+	 	net.hosts[host].monitor()
+
+	print "*** terminating simple python servers"
 	for host in clients:
+		net.hosts[host].sendInt()
 		net.hosts[host].monitor()
 
-	## Works until here.
-
-	for host in servers:
-		print "*** stopping host " + str(net.hosts[host])
-		net.hosts[host].sendInt()
-		while net.hosts[host].waiting != False:
-			pass
-
-		# net.hosts[host].monitor()	## does not terminate properly
-
-# elif test == "manytoone":
-# 	# Transfer directories to network-tests/files where the payloads are 
-# 	print "*** changing directories"
-# 	cmd = "cd ../network-tests/files"
-# 	net.hosts[clients[0]].cmd(cmd)
-
-# 	# Ensure that all the nodes have transfered directories
-# 	for host in servers:
-# 		if net.hosts[host].cmd("pwd")[-5:] != "files":
-# 			cmd = "cd ../network-tests/files"
-# 			net.hosts[host].cmd(cmd)
-
-# 	sleep(1)
-
-# 	for each in servers:
-# 		cmd = "wget " + str(net.hosts[clients[0]].IP()) + ":8000/" + args['payloadsize'] + ".out" + \
-# 			" -P dump/ &" 
-
-# 		print "Sending request from " + str(net.hosts[each])
-# 		net.hosts[each].cmd(cmd)
-
-# 	for host in clients:
-# 		print "*** waiting for sending"
-# 		net.hosts[host].monitor()
-
-# 	for host in servers:
-# 		print "*** stopping host " + str(net.hosts[host])
-# 		net.hosts[host].sendInt()
-# 		net.hosts[host].monitor()	## does not terminate properly
 
 # if testingInterval != "random":
 # 	# Start iperf on all servers host (non-blocking).
