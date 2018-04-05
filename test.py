@@ -5,7 +5,7 @@ from subprocess import Popen, PIPE
 from time import sleep
 import json
 
-test = "onetomany"
+test = "manytoone"
 
 # Configuration
 ## network-tests and mininet-topo-generator should be in the same directory
@@ -69,18 +69,23 @@ runCount = int(args['runcount'])
 # Generate randomized sender/receiver arrays.
 ## two hosts will be isolated in its own array, the rest will be in another
 length = len(net.hosts)
-clients = sample(xrange(length), 1)
+clients = sample(xrange(length), 2)
 
 servers = range(0, length)
 for host in clients:
 	servers.remove(host)
 
+servers_0 = sample(servers, (length -2)/2)
+servers_1 = [x for x in servers if x not in servers_0]
+
+server_set = [servers_0, servers_1]
+
 print "*** Servers: "
-for server in servers:
-	print str(net.hosts[server])
+for servers in server_set:
+	print [str(net.hosts[x]) for x in servers]
+
 print "*** Clients: "
-for client in clients:
-	print str(net.hosts[client])
+print [str(net.hosts[x]) for x in clients]
 
 print ""
 
@@ -91,32 +96,37 @@ if test == "onetomany":
 	print "*** changing host directories to ../network-tests/files"
 	for host in range(0, length):
 		if net.hosts[host].cmd("pwd")[-5:] != "files":
-			cmd = "cd ../network-tests/files"
+			cmd = "cd ../network1-tests/files"
 			net.hosts[host].cmd(cmd)
 
 	sleep(1)
 
 	print "*** starting simple python servers"
-	for host in servers:
-		cmd = "python -m SimpleHTTPServer &"
-		net.hosts[host].sendCmd(cmd)
+	for servers in server_set:
+		for host in servers:
+			cmd = "python -m SimpleHTTPServer &"
+			net.hosts[host].sendCmd(cmd)
 
 	print "*** sending requests"
-	for host in servers:
-		cmd = "wget " + str(net.hosts[host].IP()) + ":8000/" + args['payloadsize'] + ".out" \
+	for host1,host2 in zip(server_set[0], server_set[1]):
+		cmd1 = "wget " + str(net.hosts[host1].IP()) + ":8000/" + args['payloadsize'] + ".out" \
+			" -P dump/ &"
+		cmd2 = "wget " + str(net.hosts[host2].IP()) + ":8000/" + args['payloadsize'] + ".out" \
 			" -P dump/ &"
 
-		net.hosts[clients[0]].cmd(cmd)
-		print "sent request to " + str(net.hosts[host])
+		net.hosts[clients[0]].cmd(cmd1)
+		net.hosts[clients[1]].cmd(cmd2)
+		print "sent request to " + str(net.hosts[host1]) + " and " + str(net.hosts[host2])
 
 	print "*** waiting for clients to finish request"
 	for host in clients:
 	 	net.hosts[host].monitor()
 
 	print "*** terminating simple python servers"
-	for host in servers:
-		net.hosts[host].sendInt()
-		net.hosts[host].monitor()
+	for servers in server_set:
+		for host in servers:
+			net.hosts[host].sendInt()
+			net.hosts[host].monitor()
 
 elif test == "manytoone":
 	print "*** changing host directories to ../network-tests/files"
@@ -133,16 +143,20 @@ elif test == "manytoone":
 		net.hosts[host].sendCmd(cmd)
 
 	print "*** sending requests"
-	for host in servers:
+	for host1,host2 in zip(server_set[0], server_set[1]):
 		cmd = "wget " + str(net.hosts[clients[0]].IP()) + ":8000/" + args['payloadsize'] + ".out" \
 			" -P dump/ &"
+		cmd = "wget " + str(net.hosts[clients[1]].IP()) + ":8000/" + args['payloadsize'] + ".out" \
+			" -P dump/ &"
 
-		net.hosts[host].cmd(cmd)
-		print "sent request from " + str(net.hosts[host])
+		net.hosts[host1].cmd(cmd1)
+		net.hosts[host2].cmd(cmd2)
+		print "sent request from " + str(net.hosts[host1]) + " and " + str(net.hosts[host2])
 
 	print "*** waiting for clients to finish request"
-	for host in servers:
-	 	net.hosts[host].monitor()
+	for servers in server_set:
+		for host in servers:
+		 	net.hosts[host].monitor()
 
 	print "*** terminating simple python servers"
 	for host in clients:
