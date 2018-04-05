@@ -64,98 +64,100 @@ elif args['payloadsize'] == "long":
 	payloadSize = "25M"
 
 ## Run count --runcount [(10),N]
-runCount = int(args['runcount'])
+# runCount = int(args['runcount'])
+runCount = 5
 
 # Generate randomized sender/receiver arrays.
 ## two hosts will be isolated in its own array, the rest will be in another
-length = len(net.hosts)
-clients = sample(xrange(length), 2)
-
-servers = range(0, length)
-for host in clients:
-	servers.remove(host)
-
-servers_0 = sample(servers, (length -2)/2)
-servers_1 = [x for x in servers if x not in servers_0]
-
-server_set = [servers_0, servers_1]
-
-print "*** Servers: "
-for servers in server_set:
-	print [str(net.hosts[x]) for x in servers]
-
-print "*** Clients: "
-print [str(net.hosts[x]) for x in clients]
-
-print ""
-
-# We might have to log these down into another log file later on for parsing.
-## Indicate the pairing, the time executed, and other pertinent details.
-
 print "*** changing host directories to ../network-tests/files"
 for host in range(0, length):
 	if net.hosts[host].cmd("pwd")[-5:] != "files":
 		cmd = "cd ../network-tests/files"
 		net.hosts[host].cmd(cmd)
 
+length = len(net.hosts)
+
+portList = [8081, 8082, 8083, 8084, 8085]
+pickList = []
+restList = []
+
+for x in range(0,5):
+	pick = sample(range(0, length), 2)
+	pickList.append(pick)
+
+	temp = sample([x for x in range(0, length) if x not in pick], 7)
+	restList.append([temp,[x for x in range(0, length) if x not in pick + temp]])
+
+for run,(pick,rest) in enumerate(zip(pickList, restList)):
+	print "*** run " + str(run + 1)
+	for i,each in enumerate(pick):
+		print str(net.hosts[each]) + " : " + str([str(net.hosts[x]) for x in rest[i] ])
+
+	print ""
+
+# We might have to log these down into another log file later on for parsing.
+## Indicate the pairing, the time executed, and other pertinent details.
+
 if test == "onetomany":
-	print "*** starting simple python servers"
-	for servers in server_set:
-		for host in servers:
+	for run,(pick, rest) in enumerate(zip(pickList, restList)):
+		print "*** starting simple python servers"
+		for servers in rest:
+			for host in servers:
+				cmd = "python -m SimpleHTTPServer &"
+				net.hosts[host].cmd(cmd)
+
+		sleep(1)
+
+		print "*** sending requests"
+		for host1,host2 in zip(rest[0], rest[1]):
+			cmd1 = "wget " + str(net.hosts[host1].IP()) + ":8000/" + args['payloadsize'] + ".out" \
+				" -P dump/" + args['payloadsize'] + "-" + str(net.hosts[host1]) + " &"
+			cmd2 = "wget " + str(net.hosts[host2].IP()) + ":8000/" + args['payloadsize'] + ".out" \
+				" -P dump/" + args['payloadsize'] + "-" + str(net.hosts[host2]) + " &"
+
+			net.hosts[pick[0]].cmd(cmd1)
+			net.hosts[pick[1]].cmd(cmd2)
+			print "sent request to " + str(net.hosts[host1]) + " and " + str(net.hosts[host2])
+
+		print "*** waiting for clients to finish request"
+		for client in pick:
+		 	net.hosts[client].monitor()
+
+		print "*** terminating simple python servers"
+		for servers in rest:
+			for host in servers:
+				net.hosts[host].sendInt()
+				net.hosts[host].monitor()
+
+elif test == "manytoone":
+	for run,(pick, rest) in enumerate(zip(pickList, restList)):
+		print "*** starting simple python servers"
+		for host in pick:
 			cmd = "python -m SimpleHTTPServer &"
 			net.hosts[host].cmd(cmd)
 
-	sleep(1)
+		sleep(1)
 
-	print "*** sending requests"
-	for host1,host2 in zip(server_set[0], server_set[1]):
-		cmd1 = "wget " + str(net.hosts[host1].IP()) + ":8000/" + args['payloadsize'] + ".out" \
-			" -P dump/" + args['payloadsize'] + "-" + str(net.hosts[host1]) + " &"
-		cmd2 = "wget " + str(net.hosts[host2].IP()) + ":8000/" + args['payloadsize'] + ".out" \
-			" -P dump/" + args['payloadsize'] + "-" + str(net.hosts[host2]) + " &"
+		print "*** sending requests"
+		for host1,host2 in zip(rest[0], rest[1]):
+			cmd = "wget " + str(net.hosts[pick[0]].IP()) + ":8000/" + args['payloadsize'] + ".out" \
+				" -P dump/" + args['payloadsize'] + "-" + str(net.hosts[host1]) + " &"
+			cmd = "wget " + str(net.hosts[pick[1]].IP()) + ":8000/" + args['payloadsize'] + ".out" \
+				" -P dump/" + args['payloadsize'] + "-" + str(net.hosts[host2]) + " &"
 
-		net.hosts[clients[0]].cmd(cmd1)
-		net.hosts[clients[1]].cmd(cmd2)
-		print "sent request to " + str(net.hosts[host1]) + " and " + str(net.hosts[host2])
+			net.hosts[host1].cmd(cmd1)
+			net.hosts[host2].cmd(cmd2)
+			print "sent request from " + str(net.hosts[host1]) + " and " + str(net.hosts[host2])
 
-	print "*** waiting for clients to finish request"
-	for host in clients:
-	 	net.hosts[host].monitor()
+		print "*** waiting for clients to finish request"
+		for clients in rest:
+			for host in clients:
+			 	net.hosts[host].monitor()
 
-	print "*** terminating simple python servers"
-	for servers in server_set:
-		for host in servers:
-			net.hosts[host].sendInt()
-			net.hosts[host].monitor()
-
-elif test == "manytoone":
-	print "*** starting simple python servers"
-	for host in clients:
-		cmd = "python -m SimpleHTTPServer &"
-		net.hosts[host].cmd(cmd)
-
-	sleep(1)
-
-	print "*** sending requests"
-	for host1,host2 in zip(server_set[0], server_set[1]):
-		cmd = "wget " + str(net.hosts[clients[0]].IP()) + ":8000/" + args['payloadsize'] + ".out" \
-			" -P dump/" + args['payloadsize'] + "-" + str(net.hosts[host1]) + " &"
-		cmd = "wget " + str(net.hosts[clients[1]].IP()) + ":8000/" + args['payloadsize'] + ".out" \
-			" -P dump/" + args['payloadsize'] + "-" + str(net.hosts[host2]) + " &"
-
-		net.hosts[host1].cmd(cmd1)
-		net.hosts[host2].cmd(cmd2)
-		print "sent request from " + str(net.hosts[host1]) + " and " + str(net.hosts[host2])
-
-	print "*** waiting for clients to finish request"
-	for servers in server_set:
-		for host in servers:
-		 	net.hosts[host].monitor()
-
-	print "*** terminating simple python servers"
-	for host in clients:
-		net.hosts[host].sendInt()
-		net.hosts[host].monitor()
+		print "*** terminating simple python servers"
+		for server in pick:
+			net.hosts[server].sendInt()
+			net.hosts[server].monitor()
 
 print "*** returning to mininet-topo-generator directory"
 for host in range(0, length):
@@ -235,14 +237,14 @@ for host in range(0, length):
 # 		sleep(0.1)
 
 
-# 	# Format the results into a json format
-# 	entry = { 'server': str(net.hosts[server]), 'client': str(net.hosts[client]), 'results': [] }
-# 	for each in results:
-# 		entry['results'].append({ 'throughput': 0, 'fct': 0 })
-# 	entries.append(entry)
+	# Format the results into a json format
+	# entry = { 'server': str(net.hosts[server]), 'client': str(net.hosts[client]), 'results': [] }
+	# for each in results:
+	# 	entry['results'].append({ 'throughput': 0, 'fct': 0 })
+	# entries.append(entry)
 
-# # 	net.hosts[server].sendInt()
-# # 	net.hosts[server].monitor()
+# 	net.hosts[server].sendInt()
+# 	net.hosts[server].monitor()
 
 # # Write it into json dump middle file.
 # filepath = directory + "mid.json"
