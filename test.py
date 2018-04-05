@@ -67,6 +67,8 @@ elif args['payloadsize'] == "long":
 # runCount = int(args['runcount'])
 runCount = 5
 
+length = len(net.hosts)
+
 # Generate randomized sender/receiver arrays.
 ## two hosts will be isolated in its own array, the rest will be in another
 print "*** changing host directories to ../network-tests/files"
@@ -74,8 +76,6 @@ for host in range(0, length):
 	if net.hosts[host].cmd("pwd")[-5:] != "files":
 		cmd = "cd ../network-tests/files"
 		net.hosts[host].cmd(cmd)
-
-length = len(net.hosts)
 
 portList = [8081, 8082, 8083, 8084, 8085]
 pickList = []
@@ -140,9 +140,9 @@ elif test == "manytoone":
 
 		print "*** sending requests"
 		for host1,host2 in zip(rest[0], rest[1]):
-			cmd = "wget " + str(net.hosts[pick[0]].IP()) + ":8000/" + args['payloadsize'] + ".out" \
+			cmd1 = "wget " + str(net.hosts[pick[0]].IP()) + ":8000/" + args['payloadsize'] + ".out" \
 				" -P dump/" + args['payloadsize'] + "-" + str(net.hosts[host1]) + " &"
-			cmd = "wget " + str(net.hosts[pick[1]].IP()) + ":8000/" + args['payloadsize'] + ".out" \
+			cmd2 = "wget " + str(net.hosts[pick[1]].IP()) + ":8000/" + args['payloadsize'] + ".out" \
 				" -P dump/" + args['payloadsize'] + "-" + str(net.hosts[host2]) + " &"
 
 			net.hosts[host1].cmd(cmd1)
