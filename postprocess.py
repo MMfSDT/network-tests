@@ -16,18 +16,17 @@ from os.path import isfile, join, abspath
 from shlex import split
 from shutil import copy
 from subprocess import check_call, check_output, Popen, PIPE
-from sys import exit
+import errno
 
-def unique (list_):
+def unique(list_):
     # Python cheat to get all unique values in a list.
     return list(set(list_))
 
-def time ():
+def time():
     # Python cheat to get time from Unix epoch
-    return int(datetime.now().strftime("%s")) * 1000 
+    return int(datetime.now().strftime("%s")) * 1000
 
-topopath = abspath(".") # TODO change this omg
-# topopath = abspath("../original-captures/") # TODO change this omg
+topopath = abspath(".")
 logpath = abspath("../network-tests/logs/")
 standardtime = time()
 pcappath = abspath("../network-tests/logs/pcaps/pcap-{}".format(standardtime))
@@ -41,12 +40,13 @@ def copyPcapFiles ():
     # Make pcap directory.
     try:
         makedirs(pcappath)
-    except OSError as e:
-        if e.errno != errno.EEXIST:
+    except OSError as error:
+        if error.errno != errno.EEXIST:
             raise
-    
-    for file in [join(topopath, f) for f in listdir(topopath) if isfile(join(topopath, f)) and re.search(r'.pcap$', f, re.M)]:
-        copy(file, pcappath)
+
+    for pcapFile in [join(topopath, f) for f in listdir(topopath)
+                     if isfile(join(topopath, f)) and re.search(r'.pcap$', f, re.M)]:
+        copy(pcapFile, pcappath)
 
 def getInterfaces ():
     # Infer all available interfaces using this code.
@@ -86,7 +86,7 @@ def includeFCT (entries):
     print("*** Extracting FCT from .pcap files.")
     for index, entry in enumerate(entries):
         fcts = Popen(["sh", "-c", 
-                "sudo -u \"$SUDO_USER\" tshark -qz conv,tcp,ip.addr=={} -r {} | sed -e 1,5d | head -n -1 | sort -k 10 -n | awk -F' ' '{{print $11}}'".format(
+                "tshark -qz conv,tcp,ip.addr=={} -r {} | sed -e 1,5d | head -n -1 | sort -k 10 -n | awk -F' ' '{{print $11}}'".format(
                     convertServerToIP(entry['server']), 
                     getClientInterface(entry['client'])
                 )], stdout=PIPE).communicate()[0].splitlines()
