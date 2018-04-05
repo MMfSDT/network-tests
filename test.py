@@ -92,27 +92,27 @@ print ""
 # We might have to log these down into another log file later on for parsing.
 ## Indicate the pairing, the time executed, and other pertinent details.
 
+print "*** changing host directories to ../network-tests/files"
+for host in range(0, length):
+	if net.hosts[host].cmd("pwd")[-5:] != "files":
+		cmd = "cd ../network-tests/files"
+		net.hosts[host].cmd(cmd)
+
 if test == "onetomany":
-	print "*** changing host directories to ../network-tests/files"
-	for host in range(0, length):
-		if net.hosts[host].cmd("pwd")[-5:] != "files":
-			cmd = "cd ../network1-tests/files"
-			net.hosts[host].cmd(cmd)
-
-	sleep(1)
-
 	print "*** starting simple python servers"
 	for servers in server_set:
 		for host in servers:
 			cmd = "python -m SimpleHTTPServer &"
-			net.hosts[host].sendCmd(cmd)
+			net.hosts[host].cmd(cmd)
+
+	sleep(1)
 
 	print "*** sending requests"
 	for host1,host2 in zip(server_set[0], server_set[1]):
 		cmd1 = "wget " + str(net.hosts[host1].IP()) + ":8000/" + args['payloadsize'] + ".out" \
-			" -P dump/ &"
+			" -P dump/" + args['payloadsize'] + "-" + str(net.hosts[host1]) + " &"
 		cmd2 = "wget " + str(net.hosts[host2].IP()) + ":8000/" + args['payloadsize'] + ".out" \
-			" -P dump/ &"
+			" -P dump/" + args['payloadsize'] + "-" + str(net.hosts[host2]) + " &"
 
 		net.hosts[clients[0]].cmd(cmd1)
 		net.hosts[clients[1]].cmd(cmd2)
@@ -129,25 +129,19 @@ if test == "onetomany":
 			net.hosts[host].monitor()
 
 elif test == "manytoone":
-	print "*** changing host directories to ../network-tests/files"
-	for host in range(0, length):
-		if net.hosts[host].cmd("pwd")[-5:] != "files":
-			cmd = "cd ../network-tests/files"
-			net.hosts[host].cmd(cmd)
-
-	sleep(1)
-
 	print "*** starting simple python servers"
 	for host in clients:
 		cmd = "python -m SimpleHTTPServer &"
-		net.hosts[host].sendCmd(cmd)
+		net.hosts[host].cmd(cmd)
+
+	sleep(1)
 
 	print "*** sending requests"
 	for host1,host2 in zip(server_set[0], server_set[1]):
 		cmd = "wget " + str(net.hosts[clients[0]].IP()) + ":8000/" + args['payloadsize'] + ".out" \
-			" -P dump/ &"
+			" -P dump/" + args['payloadsize'] + "-" + str(net.hosts[host1]) + " &"
 		cmd = "wget " + str(net.hosts[clients[1]].IP()) + ":8000/" + args['payloadsize'] + ".out" \
-			" -P dump/ &"
+			" -P dump/" + args['payloadsize'] + "-" + str(net.hosts[host2]) + " &"
 
 		net.hosts[host1].cmd(cmd1)
 		net.hosts[host2].cmd(cmd2)
@@ -163,6 +157,11 @@ elif test == "manytoone":
 		net.hosts[host].sendInt()
 		net.hosts[host].monitor()
 
+print "*** returning to mininet-topo-generator directory"
+for host in range(0, length):
+	if net.hosts[host].cmd("pwd")[-9:] != "generator":
+		cmd = "cd ../../mininet-topo-generator"
+		net.hosts[host].cmd(cmd)
 
 # if testingInterval != "random":
 # 	# Start iperf on all servers host (non-blocking).
@@ -239,11 +238,11 @@ elif test == "manytoone":
 # 	# Format the results into a json format
 # 	entry = { 'server': str(net.hosts[server]), 'client': str(net.hosts[client]), 'results': [] }
 # 	for each in results:
-# 		entry['results'].append({ 'throughput': int(each.split(",")[-1][:-1].strip()), 'fct': 0 })
+# 		entry['results'].append({ 'throughput': 0, 'fct': 0 })
 # 	entries.append(entry)
 
-# 	net.hosts[server].sendInt()
-# 	net.hosts[server].monitor()
+# # 	net.hosts[server].sendInt()
+# # 	net.hosts[server].monitor()
 
 # # Write it into json dump middle file.
 # filepath = directory + "mid.json"
