@@ -19,7 +19,7 @@ update_status () {
 # test 1
 update_status "1. static - tcp - query - k = 4 - 5 runs (RUNNING)"
 
-sudo -u "$SUDO_USER" ./run.sh --test ../network-tests/test.py \
+sudo ./run.sh --test ../network-tests/test.py \
 --K 4 --router static --proto tcp --payloadsize query --runcount 5 \
 --post ../network-tests/postprocess.py --pcap
 
@@ -28,7 +28,7 @@ update_status "1. static - tcp - query - k = 4 - 5 runs (DONE)"
 # test 2
 update_status "2. static - tcp - short - k = 4 - 5 runs (RUNNING)"
 
-sudo -u "$SUDO_USER" ./run.sh --test ../network-tests/test.py \
+sudo ./run.sh --test ../network-tests/test.py \
 --K 4 --router static --proto tcp --payloadsize short --runcount 5 \
 --post ../network-tests/postprocess.py --pcap
 
@@ -37,7 +37,7 @@ update_status "2. static - tcp - short - k = 4 - 5 runs (DONE)"
 # test 3
 update_status "3. static - tcp - long - k = 4 - 5 runs (RUNNING)"
 
-sudo -u "$SUDO_USER" ./run.sh --test ../network-tests/test.py \
+sudo ./run.sh --test ../network-tests/test.py \
 --K 4 --router static --proto tcp --payloadsize long --runcount 5 \
 --post ../network-tests/postprocess.py --pcap
 
@@ -47,7 +47,7 @@ update_status "3. static - tcp - long - k = 4 - 5 runs (DONE)"
 # test 4
 update_status "4. ecmp - mptcp - fullmesh - query - k = 4 - 5 runs (RUNNING)"
 
-sudo -u "$SUDO_USER" ./run.sh --test ../network-tests/test.py \
+sudo ./run.sh --test ../network-tests/test.py \
 --K 4 --router ecmp --proto mptcp --pmanager fullmesh --payloadsize query --runcount 5 \
 --post ../network-tests/postprocess.py --pcap
 
@@ -56,7 +56,7 @@ update_status "4. ecmp - mptcp - query - k = 4 - 5 runs (DONE)"
 # test 5
 update_status "5. ecmp - mptcp - fullmesh - short - k = 4 - 5 runs (RUNNING)"
 
-sudo -u "$SUDO_USER" ./run.sh --test ../network-tests/test.py \
+sudo ./run.sh --test ../network-tests/test.py \
 --K 4 --router ecmp --proto mptcp --pmanager fullmesh --payloadsize short --runcount 5 \
 --post ../network-tests/postprocess.py --pcap
 
@@ -65,7 +65,7 @@ update_status "5. ecmp - mptcp - short - k = 4 - 5 runs (DONE)"
 # test 6
 update_status "6. ecmp - mptcp - fullmesh - long - k = 4 - 5 runs (RUNNING)"
 
-sudo -u "$SUDO_USER" ./run.sh --test ../network-tests/test.py \
+sudo ./run.sh --test ../network-tests/test.py \
 --K 4 --router ecmp --proto mptcp --pmanager fullmesh --payloadsize long --runcount 5 \
 --post ../network-tests/postprocess.py --pcap
 
@@ -75,7 +75,7 @@ update_status "6. ecmp - mptcp - long - k = 4 - 5 runs (DONE)"
 # test 7
 update_status "7. ecmp - mptcp - 4 ndiffports - query - k = 4 - 5 runs (RUNNING)"
 
-sudo -u "$SUDO_USER" ./run.sh --test ../network-tests/test.py \
+sudo ./run.sh --test ../network-tests/test.py \
 --K 4 --router ecmp --proto mptcp --pmanager ndiffports --diffports 4 --payloadsize query --runcount 5 \
 --post ../network-tests/postprocess.py --pcap
 
@@ -84,7 +84,7 @@ update_status "7. ecmp - mptcp - 4 ndiffports - query - k = 4 - 5 runs (DONE)"
 # test 8
 update_status "8. ecmp - mptcp - 4 ndiffports - short - k = 4 - 5 runs (RUNNING)"
 
-sudo -u "$SUDO_USER" ./run.sh --test ../network-tests/test.py \
+sudo ./run.sh --test ../network-tests/test.py \
 --K 4 --router ecmp --proto mptcp --pmanager ndiffports --diffports 4 --payloadsize short --runcount 5 \
 --post ../network-tests/postprocess.py --pcap
 
@@ -93,7 +93,7 @@ update_status "8. ecmp - mptcp - 4 ndiffports - short - k = 4 - 5 runs (DONE)"
 # test 9
 update_status "9. ecmp - mptcp - 4 ndiffports - long - k = 4 - 5 runs (RUNNING)"
 
-sudo -u "$SUDO_USER" ./run.sh --test ../network-tests/test.py \
+sudo ./run.sh --test ../network-tests/test.py \
 --K 4 --router ecmp --proto mptcp --pmanager ndiffports --diffports 4 --payloadsize long --runcount 5 \
 --post ../network-tests/postprocess.py --pcap
 
@@ -103,7 +103,7 @@ update_status "9. ecmp - mptcp - 4 ndiffports - long - k = 4 - 5 runs (DONE)"
 # test 10
 update_status "10. ps - tcp - query - k = 4 - 5 runs (RUNNING)"
 
-sudo -u "$SUDO_USER" ./run.sh --test ../network-tests/test.py \
+sudo ./run.sh --test ../network-tests/test.py \
 --K 4 --router ps --proto tcp --payloadsize query --runcount 5 \
 --post ../network-tests/postprocess.py --pcap
 
@@ -112,7 +112,7 @@ update_status "10. ps - tcp - query - k = 4 - 5 runs (DONE)"
 # test 11
 update_status "11. ps - tcp - short - k = 4 - 5 runs (RUNNING)"
 
-sudo -u "$SUDO_USER" ./run.sh --test ../network-tests/test.py \
+sudo ./run.sh --test ../network-tests/test.py \
 --K 4 --router ps --proto tcp --payloadsize short --runcount 5 \
 --post ../network-tests/postprocess.py --pcap
 
@@ -121,7 +121,7 @@ update_status "11. ps - tcp - short - k = 4 - 5 runs (DONE)"
 # test 12
 update_status "12. ps - tcp - long - k = 4 - 5 runs (RUNNING)"
 
-sudo -u "$SUDO_USER" ./run.sh --test ../network-tests/test.py \
+sudo ./run.sh --test ../network-tests/test.py \
 --K 4 --router ps --proto tcp --payloadsize long --runcount 5 \
 --post ../network-tests/postprocess.py --pcap
 
@@ -131,7 +131,7 @@ update_status "12. ps - tcp - long - k = 4 - 5 runs (DONE)"
 # test 13
 update_status "13. ps - mptcp - fullmesh - query - k = 4 - 5 runs (RUNNING)"
 
-sudo -u "$SUDO_USER" ./run.sh --test ../network-tests/test.py \
+sudo ./run.sh --test ../network-tests/test.py \
 --K 4 --router ps --proto mptcp --pmanager fullmesh --payloadsize query --runcount 5 \
 --post ../network-tests/postprocess.py --pcap
 
@@ -140,7 +140,7 @@ update_status "13. ps - mptcp - query - k = 4 - 5 runs (DONE)"
 # test 14
 update_status "14. ps - mptcp - fullmesh - short - k = 4 - 5 runs (RUNNING)"
 
-sudo -u "$SUDO_USER" ./run.sh --test ../network-tests/test.py \
+sudo ./run.sh --test ../network-tests/test.py \
 --K 4 --router ps --proto mptcp --pmanager fullmesh --payloadsize short --runcount 5 \
 --post ../network-tests/postprocess.py --pcap
 
@@ -149,7 +149,7 @@ update_status "14. ps - mptcp - short - k = 4 - 5 runs (DONE)"
 # test 15
 update_status "15. ps - mptcp - fullmesh - long - k = 4 - 5 runs (RUNNING)"
 
-sudo -u "$SUDO_USER" ./run.sh --test ../network-tests/test.py \
+sudo ./run.sh --test ../network-tests/test.py \
 --K 4 --router ps --proto mptcp --pmanager fullmesh --payloadsize long --runcount 5 \
 --post ../network-tests/postprocess.py --pcap
 
@@ -159,7 +159,7 @@ update_status "15. ps - mptcp - long - k = 4 - 5 runs (DONE)"
 # test 16
 update_status "16. ps - mptcp - 4 ndiffports - query - k = 4 - 5 runs (RUNNING)"
 
-sudo -u "$SUDO_USER" ./run.sh --test ../network-tests/test.py \
+sudo ./run.sh --test ../network-tests/test.py \
 --K 4 --router ps --proto mptcp --pmanager ndiffports --diffports 4 --payloadsize query --runcount 5 \
 --post ../network-tests/postprocess.py --pcap
 
@@ -168,7 +168,7 @@ update_status "16. ps - mptcp - 4 ndiffports - query - k = 4 - 5 runs (DONE)"
 # test 17
 update_status "17. ps - mptcp - 4 ndiffports - short - k = 4 - 5 runs (RUNNING)"
 
-sudo -u "$SUDO_USER" ./run.sh --test ../network-tests/test.py \
+sudo ./run.sh --test ../network-tests/test.py \
 --K 4 --router ps --proto mptcp --pmanager ndiffports --diffports 4 --payloadsize short --runcount 5 \
 --post ../network-tests/postprocess.py --pcap
 
@@ -177,7 +177,7 @@ update_status "17. ps - mptcp - 4 ndiffports - short - k = 4 - 5 runs (DONE)"
 # test 18
 update_status "18. ps - mptcp - 4 ndiffports - long - k = 4 - 5 runs (RUNNING)"
 
-sudo -u "$SUDO_USER" ./run.sh --test ../network-tests/test.py \
+sudo ./run.sh --test ../network-tests/test.py \
 --K 4 --router ps --proto mptcp --pmanager ndiffports --diffports 4 --payloadsize long --runcount 5 \
 --post ../network-tests/postprocess.py --pcap
 
