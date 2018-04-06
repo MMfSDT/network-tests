@@ -104,7 +104,7 @@ update_status "9. ecmp - mptcp - 4 ndiffports - long - k = 4 - 5 runs (DONE)"
 update_status "10. ps - tcp - query - k = 4 - 5 runs (RUNNING)"
 
 sudo -u "$SUDO_USER" ./run.sh --test ../network-tests/test.py \
---K 4 --router ps --proto tcp --payloadsize query \
+--K 4 --router ps --proto tcp --payloadsize query --runcount 5 \
 --post ../network-tests/postprocess.py --pcap
 
 update_status "10. ps - tcp - query - k = 4 - 5 runs (DONE)"
