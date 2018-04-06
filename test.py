@@ -103,7 +103,7 @@ if test == "onetomany":
 		print "*** starting simple python servers"
 		for servers in rest:
 			for host in servers:
-				cmd = "python -m SimpleHTTPServer &"
+				cmd = "python -m SimpleHTTPServer " + str(portList[run]) + " &"
 				net.hosts[host].cmd(cmd)
 
 		sleep(1)
@@ -133,7 +133,7 @@ elif test == "manytoone":
 	for run,(pick, rest) in enumerate(zip(pickList, restList)):
 		print "*** starting simple python servers"
 		for host in pick:
-			cmd = "python -m SimpleHTTPServer &"
+			cmd = "python -m SimpleHTTPServer " + str(portList[run]) + " &"
 			net.hosts[host].cmd(cmd)
 
 		sleep(1)
@@ -246,10 +246,20 @@ for host in range(0, length):
 # 	net.hosts[server].sendInt()
 # 	net.hosts[server].monitor()
 
-# # Write it into json dump middle file.
-# filepath = directory + "mid.json"
-# with open(filepath, 'w+') as jsonFile:
-# 	json.dump(entries, jsonFile)
+entries = []
+for run,(pick,rest) in enumerate(zip(pickList, restList)):
+	for host1 in pick:
+		for host2 in rest:
+			entry = {'pick': str(net.hosts[host1].IP()),\
+					 'rest': str(net.hosts[host2].IP()),\
+					 'run': str(portList[run])}
+					 
+		entries.append(entry)
+
+# Write it into json dump middle file.
+filepath = directory + "mid.json"
+with open(filepath, 'w+') as jsonFile:
+	json.dump(entries, jsonFile)
 
 print ""
 print "Test complete."
