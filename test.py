@@ -100,6 +100,7 @@ if mode == "onetomany":
 			print str(net.hosts[each]) + " : " + str([str(net.hosts[x]) for x in rest[i] ])
 		print ""
 
+	entries = []
 	for run,(pick, rest) in enumerate(zip(pickList, restList)):
 		print "*** starting simple python servers\n"
 		for servers in rest:
@@ -130,8 +131,75 @@ if mode == "onetomany":
 				net.hosts[host].sendInt()
 				net.hosts[host].monitor()
 
-elif mode == "silent":
-	print "silent"
+		# Format the results into a json format
+		# Load the first pick and its paired rests
+		for host in rest[0]:
+			entry = {'serverName': str(net.hosts[server]), 'serverIP': str(net.hosts[server].IP()), \
+					'clientName': str(net.hosts[pick[0]]), 'clientIP': str(net.hosts[pick[0]].IP()), \
+					'run': str(portList[run]) \
+					}
+			entries.append(entry)
+
+		for host in rest[1]:
+			entry = {'serverName': str(net.hosts[server]), 'serverIP': str(net.hosts[server].IP()), \
+					'clientName': str(net.hosts[pick[1]]), 'clientIP': str(net.hosts[pick[1]].IP()), \
+					'run': str(portList[run]) \
+					}
+			entries.append(entry)
+
+	# print entries
+
+elif mode == "onetoone":
+	# Generate randomized sender/receiver pairs.
+	client = sample(xrange(length), length)
+
+	server = []
+	for each in range(0, length):
+		server.append(choice([x for x in client if x not in server]))
+
+		while server[-1] == client[len(server) - 1]:
+			server[-1] = choice([x for x in client if x not in server])
+
+	print "*** Servers: " + str(server)
+	print "*** Clients: " + str(client)
+	print ""
+
+	# Iterate through the previously generated server/client pairs.
+	entries = []
+	for server, client in zip(server, client):
+		# Start iperf on server host (non-blocking).
+		serverCmd = "iperf -s &> /dev/null"
+		net.hosts[server].sendCmd(serverCmd)
+
+		results = []
+
+		sleep(0.1)
+		print "Testing server-client pair " + \
+			str(net.hosts[server]) + " " + str(net.hosts[client])
+		for each in range(0, runCount):
+			clientCmd = "iperf -c" +  net.hosts[server].IP() \
+				+ " -n " + payloadSize + " -y c -x CSMV"
+
+			results.append(net.hosts[client].cmd(clientCmd))
+			sleep(0.1)
+
+		# Format the results into a json format
+		entry = { 'serverName': str(net.hosts[server]), 'serverIP': str(net.hosts[server].IP()), \
+				'clientName': str(net.hosts[client]), 'serverIP': str(net.hosts[client].IP()), \
+				'results': [] }
+		for each in results:
+			entry['results'].append({ 'throughput': int(each.split(",")[-1][:-1].strip()), 'fct': 0 })
+		entries.append(entry)
+
+		net.hosts[server].sendInt()
+		net.hosts[server].monitor()
+
+# Write it into json dump middle file.
+filepath = directory + "mid.json"
+with open(filepath, 'w+') as jsonFile:
+	json.dump(entries, jsonFile)
+
+
 
 # elif mode == "manytoone":
 # 	for run,(pick, rest) in enumerate(zip(pickList, restList)):
