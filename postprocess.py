@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# pylint: disable-msg=C0103,E0602,C0301,C0111,C0325,W0621,W0702
 
 ############################################################################################
 #   postprocess.py
@@ -11,12 +12,14 @@
 import json
 import re
 from datetime import datetime
+from time import strptime, strftime, localtime
 from os import listdir, makedirs
 from os.path import isfile, join, abspath
 from shlex import split
 from shutil import copy
-from subprocess import check_call, check_output, Popen, PIPE
+from subprocess import check_call, Popen, PIPE
 import errno
+import sqlite3
 
 
 def unique(list_):
@@ -28,14 +31,22 @@ def time():
     # Python cheat to get time from Unix epoch
     return int(datetime.now().strftime("%s")) * 1000
 
+def isoToDateTime(timeString):
+    # Expects 'YYYY-MM-DD HH:MM:SS'
+    return datetime(*strptime(timeString, '%Y-%m-%d %H:%M:%S')[:6])
+
+def millisToISO(millis):
+    return strftime('%Y-%m-%d %H:%M:%S', localtime(millis / 1000.0))
+
 
 topopath = abspath(".")
 logpath = abspath("../network-tests/logs/")
 standardtime = time()
+isoStandard = millisToISO(standardtime)
 pcappath = abspath("../network-tests/logs/pcaps/pcap-{}".format(standardtime))
+dbpath = abspath("../network-tests/logs/aggregate.db")
 midfile = join(logpath, "mid.json")
 argsfile = join(logpath, "args.txt")
-aggregatefile = join(logpath, "aggregate.json")
 
 
 def copyPcapFiles():
@@ -69,7 +80,7 @@ def mergePcapFiles(interfaces):
         print("*** Failed to merge pcap files. Assuming already merged. Skipping.")
 
 
-def deleteExcessPcapFiles(interfaces):
+def deleteExcessPcapFiles(interfaces, savePcaps):
     # Delete all _in and _out interfaces, we don't need them anymore.
     print("*** Deleting _in and _out pcap files.")
     try:
@@ -84,39 +95,45 @@ def deleteExcessPcapFiles(interfaces):
     except:
         print("*** Failed deleting *_out.pcap files. Assuming already deleted. Skipping.")
 
+    if savePcaps == "false":
+        print("*** Removing entire .pcap folder (no `--pcap` argument).")
+        try:
+            check_call(split("rm -rf {}".format(pcappath)))
+        except:
+            print("*** Failed deleting *.pcap files. Assuming already deleted. Skipping.")
+    else:
+        print("*** Leaving some .pcaps (`--pcap`).")
 
-def convertServerToIP(server):
+
+def convertHostToIP(host):
     parsed = [int(x)
-              for x in re.search(r'^h(\d)(\d)(\d)', server, re.M).groups()]
+              for x in re.search(r'^h(\d+)(\d+)(\d+)', host, re.M).groups()]
     return '10.{}.{}.{}'.format(parsed[0], parsed[1], parsed[2] + 2)
 
+def convertIPtoHost(ip):
+    parsed = [int(x) for x in re.search(r'^10.(\d).(\d).(\d)', ip, re.M).groups()]
+    return 'h{}{}{}'.format(parsed[0], parsed[1], parsed[2] - 2)
 
 def getClientInterface(client):
     parsed = [int(x)
               for x in re.search(r'^h(\d)(\d)(\d)', client, re.M).groups()]
     return '{}/se{}{}-eth{}.pcap'.format(pcappath, parsed[0], parsed[1], parsed[2] + 1)
 
+def setupDatabase():
+    db = sqlite3.connect(dbpath)
+    c = db.cursor()
+    # c.execute('''create table if not exists metadata (router text not null, K integer not null, proto text not null, pmanager text not null, diffports integer not null, juggler text not null, payloadsize text not null, runcount integer not null, mode text not null, postprocessedTimestamp text not null);''')
+    c.execute('''create table if not exists metadata (router text not null, K integer not null, proto text not null, pmanager text not null, diffports integer not null, juggler text not null, payloadsize text not null, runcount integer not null, mode text not null, postprocessedTimestamp text not null, UNIQUE(postprocessedTimestamp));''')
+    c.execute('''create table if not exists instances (switch text not null, interface text not null, sourceHost text not null, destinationHost text not null, sourceIP text not null, sourcePort integer not null, destinationIP text not null, destinationPort integer not null, bytesToSource integer not null, bytesToDest integer not null, timestamp text not null, duration real not null, instanceMetadata integer, FOREIGN KEY(instanceMetadata) REFERENCES metadata(rowid));''')
+    db.commit()
+    return (db, c)
 
-def includeFCT(entries):
-    print("*** Extracting FCT from .pcap files.")
-    for index, entry in enumerate(entries):
-        fcts = Popen(["sh", "-c",
-                      "tshark -qz conv,tcp,ip.addr=={} -r {} | sed -e 1,5d | head -n -1 | sort -k 10 -n | awk -F' ' '{{print $11}}'".format(
-                          convertServerToIP(entry['server']),
-                          getClientInterface(entry['client'])
-                      )], stdout=PIPE).communicate()[0].splitlines()
+def closeDatabase(db):
+    db.close()
 
-        for index_2, result in enumerate(entry['results']):
-            result['fct'] = fcts[index_2]
-            entries[index]['results'][index_2] = result
-
-    return entries
-
-
-def processJSONFiles():
-    entries = None
-    aggregate = None
+def processPcaps(db, c, interfaces):
     args = None
+    metadataId = None
 
     with open(argsfile, 'r') as jsonFile:
         print("*** Reading args.txt file from test script.")
@@ -125,32 +142,43 @@ def processJSONFiles():
         print("*** Using the following test arguments:")
         print(json.dumps(args, indent=4, sort_keys=True))
 
-    with open(midfile, 'r') as jsonFile:
-        print("*** Reading mid.json file from test script.")
-        entries = json.load(jsonFile)
+        c.execute('insert into metadata (router, K, proto, pmanager, diffports, juggler, payloadsize, runcount, mode, postprocessedTimestamp) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (args["router"], args["K"], args["proto"], args["pmanager"], args["diffports"], args["juggler"], args["payloadsize"], args["runcount"], args["mode"], isoStandard))
+        metadataId = c.lastrowid
 
-    try:
-        print("*** Reading aggregate.json file.")
-        with open(aggregatefile, 'r+') as jsonFile:
-            aggregate = json.load(jsonFile)
-    except (ValueError, IOError) as e:
-        print("*** Creating new aggregate.json file.")
-        aggregate = []
-        with open(aggregatefile, 'w+') as jsonFile:
-            json.dump(aggregate, jsonFile)
+    print("*** Extracting flow information from .pcap files.")
 
-    entries = includeFCT(entries)
-    aggregate.append({"metadata": args, "entries": entries})
+    for switchInterface in interfaces:
+        (switch, interface) = switchInterface.split('-')
+        flowInfo = Popen(["sh", "-c", "tshark -t ad -qz conv,tcp -r {}.pcap | sed -E -e 1,5d -e 's/:/ /' -e 's/:/ /' | head -n -1 | sort -k 12 | awk -F' ' '{{print $1 \",\" $2 \",\" $4 \",\" $5 \",\" $7 \",\" $9 \",\" $12 \" \" $13 \",\" $14}}'".format("{}/{}".format(pcappath, switchInterface))], stdout=PIPE).communicate()[0].splitlines()
+        # print flowInfo
 
-    with open(aggregatefile, 'w+') as jsonFile:
-        print("*** Writing aggregate.json file with FCTs.")
-        json.dump(aggregate, jsonFile)
+        for commaDelimited in flowInfo:
+            rest = commaDelimited.split(',')
+            sourceHost = convertIPtoHost(rest[0])
+            destinationHost = convertIPtoHost(rest[2])
+            queryArgs = [switch, interface, sourceHost, destinationHost] + rest + [metadataId]
 
+            # Dirty typecasting.
+            queryArgs[5] = int(queryArgs[5])
+            queryArgs[7] = int(queryArgs[7])
+            queryArgs[8] = int(queryArgs[8])
+            queryArgs[9] = int(queryArgs[9])
+            queryArgs[11] = float(queryArgs[11])
 
-if '__main__' == __name__:
+            queryArgs = tuple(queryArgs)
+
+            c.execute('insert into instances (switch, interface, sourceHost, destinationHost, sourceIP, sourcePort, destinationIP, destinationPort, bytesToSource, bytesToDest, timestamp, duration, instanceMetadata) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', queryArgs)
+
+    db.commit()
+    return args["pcap"]
+
+if __name__ == '__main__':
     print("")
     copyPcapFiles()
     interfaces = getInterfaces()
     mergePcapFiles(interfaces)
-    deleteExcessPcapFiles(interfaces)
-    processJSONFiles()
+    (db, c) = setupDatabase()
+    savePcaps = processPcaps(db, c, interfaces)
+    deleteExcessPcapFiles(interfaces, savePcaps)
+    closeDatabase(db)
+
