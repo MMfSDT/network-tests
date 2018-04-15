@@ -3,6 +3,7 @@
 logs/args.txt
 logs/mid.json
 logs/aggregate.json
+logs/aggregate.db
 logs/pcaps/pcap-*/
 
 .vscode/

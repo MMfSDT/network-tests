@@ -67,13 +67,16 @@ To recap, the following arguments will be used for launching tests.
     "pmanager": string | [{fullmesh}, ndiffports],
     "diffports": int | [1 - 16],
     "payloadsize": string | [query, long, {short}],
-    "runcount": int | [{10}]
+    "runcount": int | [{5}],
+    "mode": string | [{onetoone}, onetomany],
+    "juggler": boolean | [{false}],
+    ...
 }
 ```
 
-where `long` messages are `100MB`, `query` `10kB`, `short` `500kB`.
+where `query` messages are `10kB`, `short` `500kB`, and `long` `25MB`.
 
-By default, tests will be run on `mptcp-fullmesh` with a `runcount` of `10` on `k=4` with a payload size of `500kB`.
+By default, tests will be run on `mptcp-fullmesh` with a `runcount` of `5` on `k=4` with a payload size of `500kB`.
 
 More details are available at [`MMfSDT/mininet-topo-generator/README.md`](https://github.com/MMfSDT/mininet-topo-generator/blob/master/README.md#running-the-script).
 
@@ -85,7 +88,7 @@ logs/
 |-- pcaps/
     |-- pcap-*/
     |-- foo
-|-- aggregate.json
+|-- aggregate.db
 |-- args.txt
 |-- foo
 |-- mid.json
@@ -94,7 +97,7 @@ logs/
 where,
 * `logs/pcaps` have the `.pcap` backups for all executed tests for debugging/archival purposes.
 * `logs/pcaps/pcap-*/` will be the directory naming convention per test, where the `*` is a Unix timestamp.
-* `logs/aggregate.json` will contain all previously executed tests, in a JSON-formatted array. This will serve as the output of `postprocess.py`. In the future, this will be the main source of data for visualization.
+* `logs/aggregate.db` will contain all previously executed tests, in an SQLite3 database. This will serve as the output of `postprocess.py`. In the future, this will be the main source of data for visualization.
 * `logs/args.txt` will contain the arguments/metadata used by both `test.py` and `postprocess.py` (mentioned in `Conventions`) in a .json object.
 * `logs/mid.json` will serve as the output of `test.py` (JSON object), containing only throughput data. FCT will then be extracted from the `.pcap` logs through post-processing, and the final JSON object will be appended to `aggregate.json`
 * `foo` are placeholder files to ensure that the directories won't be skipped.
@@ -108,34 +111,13 @@ See [`Conventions`]() above.
 ```javascript
 [
     {
-        "client": string | `/h\d\d\d`,
-        "server": string | `/h\d\d\d`,
-        "results": [
-            {
-                "fct": 0,
-                "throughput": int
-            }
-        ]
+        "serverName": string | `/h\d\d\d`,
+        "serverIP": string | `10.\d+.\d+.\d+`,
+        "clientName": string | `/h\d\d\d`,
+        "clientIP": string | `10.\d+.\d+.\d+`,
+        "run": int
     }
 ]
 ```
 
 `mid.json` then contains an array of server-client pair results specified in the format above (i.e., for a `K = 4` topology, expect the array length to be `num_hosts = K^3/4 = 16`).
-
-`['results']` is then an array of run results for each server-client pair (i.e., if `--runcount 10`, expect the array length to be `10`). Note that `['results'][n]['fct']` is always set to zero when written by `test.py`, as this will be filled up by `postprocess.py`.
-### `aggregate.json` JSON format
-> Output of: `postprocess.py`
-```javascript
-[
-    {
-        "entries": _mid_,
-        "metadata": _args_
-    }
-]
-```
-
-`aggregate.json` finally contains an array of entire test results, defined by `['entries']` and `['metadata']`. 
-
-`['entries']` is defined to be `_mid_`, which is the contents of `mid.json`, with updated `['entries'][i]['results'][j]['fct']` properties.
-
-`['metadata']` is defined to be `_args_`, which is the contents of `args.json`, with an added `['metadata']['timestamp']` property, defined to be a Unix timestamp.
