@@ -218,7 +218,12 @@ elif mode == "onetoone":
         servers.append(choice([x for x in clients if x not in servers]))
 
         while servers[-1] == clients[len(servers) - 1]:
-            servers[-1] = choice([x for x in clients if x not in servers])
+            # Fix list index error.
+            choices = [x for x in clients if x not in servers]
+            if not choices:
+                servers[-2], servers[-1] = servers[-1], servers[-2]
+            else:
+                servers[-1] = choice(choices)
 
     print "*** Servers: " + str(servers)
     print "*** Clients: " + str(clients)
